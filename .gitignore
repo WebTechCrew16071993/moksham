@@ -1,30 +1,68 @@
+# Environment files
+.env
+.env.backup
+.env.production
+.env.local
+.env.example.local
+
+# Laravel / PHP
 /vendor/
-node_modules/
+.phpunit.result.cache
+.phpunit.cache/
+.php-cs-fixer.cache
+/storage/*.key
+/storage/app/public
+/storage/logs/*.log
+/storage/pail
+/bootstrap/cache/*.php
+/public/storage
+/public/hot
+/public/mix-manifest.json
+/public/build
+/public/js/app.js
+/public/css/app.css
+
+# Composer & NPM
+composer.lock
 npm-debug.log
 yarn-error.log
+package-lock.json
+pnpm-lock.yaml
+node_modules/
 
-# Laravel 4 specific
+# IDEs and Editors
+.idea/
+.vscode/
+.fleet/
+.zed/
+.phpactor.json
+*.sublime-project
+*.sublime-workspace
+
+# System / OS files
+.DS_Store
+Thumbs.db
+.vagrant
+.cache/
+
+# Nova / Auth (optional dev tools)
+.nova/
+auth.json
+
+# Tests & Coverage
+coverage/
+
+# Homestead
+Homestead.yaml
+Homestead.json
+
+# Legacy Laravel (v4 compatibility)
 bootstrap/compiled.php
 app/storage/
 
-# Laravel 5 & Lumen specific
-public/storage
-public/hot
-
-# Laravel 5 & Lumen specific with changed public path
+# Public path variations (if using public_html)
 public_html/storage
 public_html/hot
-
-storage/*.key
-.env
-Homestead.yaml
-Homestead.json
-/.vagrant
-.phpunit.result.cache
-
-/public/build
-/storage/pail
-.env.backup
-.env.production
-.phpactor.json
-auth.json
+.htaccess
+server.php
+public/.htaccess
