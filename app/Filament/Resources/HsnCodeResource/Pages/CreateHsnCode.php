@@ -4,6 +4,7 @@ namespace App\Filament\Resources\HsnCodeResource\Pages;
 
 use App\Filament\Resources\HsnCodeResource;
 use App\Models\HsnCode;
+use Illuminate\Support\Facades\Auth;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\CreateRecord;
 
@@ -13,7 +14,7 @@ class CreateHsnCode extends CreateRecord
 
     protected function authorizeAccess(): void
     {
-        abort_unless(auth()->user()?->isAdmin(), 403);
+        abort_unless(Auth::user()?->isAdmin(), 403);
     }
 
     protected function rules(): array
@@ -49,6 +50,12 @@ class CreateHsnCode extends CreateRecord
             ->send();
 
         $this->redirect(HsnCodeResource::getUrl('index'));
+    }
+
+    protected function hasCreateAnotherAction(): bool
+    {
+        // Hide the separate "Create & create another" action
+        return false;
     }
 }
 

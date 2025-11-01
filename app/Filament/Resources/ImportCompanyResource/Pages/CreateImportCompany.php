@@ -4,6 +4,7 @@ namespace App\Filament\Resources\ImportCompanyResource\Pages;
 
 use App\Filament\Resources\ImportCompanyResource;
 use App\Models\ImportCompany;
+use Illuminate\Support\Facades\Auth;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
@@ -15,7 +16,7 @@ class CreateImportCompany extends CreateRecord
 
     protected function authorizeAccess(): void
     {
-        abort_unless(auth()->user()?->isAdmin(), 403);
+        abort_unless(Auth::user()?->isAdmin(), 403);
     }
 
     protected static string $view = 'filament.resources.import-company-resource.pages.create-import-company';
@@ -100,5 +101,11 @@ class CreateImportCompany extends CreateRecord
 
         // Redirect to listing page
         $this->redirect(ImportCompanyResource::getUrl('index'));
+    }
+
+    protected function hasCreateAnotherAction(): bool
+    {
+        // Hide the separate "Create & create another" action
+        return false;
     }
 }
