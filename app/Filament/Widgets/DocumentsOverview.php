@@ -3,7 +3,13 @@
 namespace App\Filament\Widgets;
 
 use App\Filament\Resources\IndentResource;
+use App\Filament\Resources\PackingListResource;
+use App\Filament\Resources\CertificateOfOriginResource;
+use App\Filament\Resources\InvoiceResource;
 use App\Models\Indent;
+use App\Models\PackingList;
+use App\Models\CertificateOfOrigin;
+use App\Models\Invoice;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Card;
 
@@ -37,9 +43,18 @@ class DocumentsOverview extends BaseWidget
                 ->url(IndentResource::getUrl('index'))
                 ->extraAttributes(['wire:navigate' => true]),
 
+            
+            Card::make('Invoices', (string) $invoices)
+                ->color('rose')
+                ->icon('heroicon-o-receipt-percent')
+                ->url(InvoiceResource::getUrl('index'))
+                ->extraAttributes(['wire:navigate' => true]),
+
             Card::make('Packaging List', (string) $packagingList)
                 ->color('success')
-                ->icon('heroicon-o-archive-box'),
+                ->icon('heroicon-o-archive-box')
+                ->url(PackingListResource::getUrl('index'))
+                ->extraAttributes(['wire:navigate' => true]),
 
             Card::make('CCA', (string) $cca)
                 ->description('Certificate Chemical Analysis')
@@ -52,7 +67,9 @@ class DocumentsOverview extends BaseWidget
 
             Card::make('CCO', (string) $cco)
                 ->color('gray')
-                ->icon('heroicon-o-clipboard-document-check'),
+                ->icon('heroicon-o-clipboard-document-check')
+                ->url(CertificateOfOriginResource::getUrl('index'))
+                ->extraAttributes(['wire:navigate' => true]),
 
             Card::make('Form 6', (string) $form6)
                 ->color('indigo')
@@ -62,9 +79,6 @@ class DocumentsOverview extends BaseWidget
                 ->color('violet')
                 ->icon('heroicon-o-document'),
 
-            Card::make('Invoices', (string) $invoices)
-                ->color('rose')
-                ->icon('heroicon-o-receipt-percent'),
         ];
     }
 
@@ -73,13 +87,17 @@ class DocumentsOverview extends BaseWidget
         return request()->routeIs('filament.admin.pages.dashboard');
     }
 
-    // TODO: Replace the placeholder 0s below with real queries once we map where these documents are stored.
+    // Dynamic counts (exclude drafts where applicable)
     protected function getIntent(): int { return Indent::query()->count(); }
-    protected function getPackagingListCount(): int { return 0; }
+    protected function getPackagingListCount(): int {
+        return PackingList::query()->where('status', '!=', 'draft')->count();
+    }
     protected function getCcaCount(): int { return 0; }
     protected function getPsicCount(): int { return 0; }
-    protected function getCcoCount(): int { return 0; }
+    protected function getCcoCount(): int {
+        return CertificateOfOrigin::query()->where('status', '!=', 'draft')->count();
+    }
     protected function getForm6Count(): int { return 0; }
     protected function getForm9Count(): int { return 0; }
-    protected function getInvoicesCount(): int { return 0; }
+    protected function getInvoicesCount(): int { return Invoice::query()->count(); }
 }

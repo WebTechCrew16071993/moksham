@@ -57,7 +57,7 @@ class InvoiceResource extends Resource
                     Forms\Components\TextInput::make('payment_terms')->nullable()->columnSpan(6),
                     Forms\Components\TextInput::make('notify')->label('Notify')->nullable()->columnSpan(6),
                     Forms\Components\TextInput::make('quotation')->label('Quotation')
-                        // ->helperText('Optional reference that appears on PDF')
+                        // ->helperText(admin@moksham.comadmin@moksham.com'Optional reference that appears on PDF')
                         ->nullable()->columnSpan(6),
                 ]),
 

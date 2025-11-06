@@ -6,6 +6,7 @@ use App\Filament\Resources\PackingListResource\Pages;
 use App\Models\PackingList;
 use App\Models\Shipment;
 use App\Services\InvoiceGenerator;
+use App\Services\CertificateGenerator;
 use Filament\Forms;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Get;
@@ -128,10 +129,11 @@ class PackingListResource extends Resource
                                 ? (trim($indent->hsn_description) . ' HS CODE ' . trim($indent->hsn_code))
                                 : null;
                         })
+                        ->required()
                         ->columnSpan(6),
                     Forms\Components\TextInput::make('no_of_bales')->numeric()->required()->columnSpan(4),
                     Forms\Components\TextInput::make('weight_lbs')
-                    ->numeric()
+                    ->numeric()->required()
                     ->label('Weight (lbs)')
                     ->reactive()
                     ->afterStateUpdated(function ($state, callable $set) {
@@ -209,6 +211,15 @@ class PackingListResource extends Resource
                     ->icon('heroicon-o-arrow-down-tray')
                     ->url(fn(PackingList $record) => route('packing-lists.generate', ['packingList' => $record->getKey(), 'download' => 0]))
                     ->openUrlInNewTab(),
+                Tables\Actions\Action::make('generateCoo')
+                    ->label('Generate COO')
+                    ->icon('heroicon-o-document-text')
+                    ->requiresConfirmation()
+                    ->action(function (PackingList $record) {
+                        $generator = app(CertificateGenerator::class);
+                        $certificate = $generator->generateOrUpdateForPackingList($record);
+                        return redirect()->route('certificates.pdf', ['certificate' => $certificate->getKey(), 'download' => 0]);
+                    }),
                 Tables\Actions\DeleteAction::make(),
             ]);
     }

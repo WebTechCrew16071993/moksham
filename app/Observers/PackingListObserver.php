@@ -4,6 +4,7 @@ namespace App\Observers;
 
 use App\Models\Invoice;
 use App\Models\PackingList;
+use App\Services\CertificateGenerator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
@@ -12,11 +13,13 @@ class PackingListObserver
     public function created(PackingList $packingList): void
     {
         $this->syncInvoice($packingList);
+        $this->syncCertificate($packingList);
     }
 
     public function updated(PackingList $packingList): void
     {
         $this->syncInvoice($packingList);
+        $this->syncCertificate($packingList);
     }
 
     protected function syncInvoice(PackingList $packingList): void
@@ -117,6 +120,21 @@ class PackingListObserver
             }
         } catch (\Throwable $e) {
             Log::error('PackingListObserver: Failed to create/update invoice', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'packing_list_id' => $packingList->getKey(),
+            ]);
+        }
+    }
+
+    protected function syncCertificate(PackingList $packingList): void
+    {
+        try {
+            $generator = app(CertificateGenerator::class);
+            $coo = $generator->generateOrUpdateForPackingList($packingList);
+            Log::info('PackingListObserver: COO synced', ['certificate_id' => $coo->getKey()]);
+        } catch (\Throwable $e) {
+            Log::error('PackingListObserver: Failed to create/update COO', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
                 'packing_list_id' => $packingList->getKey(),

@@ -13,12 +13,21 @@ class CertificateOfOrigin extends Model
     protected $table = 'certificates_of_origin';
 
     protected $fillable = [
+        'packing_list_id',
         'shipment_id',
         'user_id',
         'document_no',
         'bl_no',
+        'export_references',
+        'forwarding_agent',
+        'consigned_to',
+        'notify_party',
+        'origin_or_ftz',
+        'domestic_routing_instructions',
+        'pre_carriage_by',
         'port_of_loading',
         'port_of_discharge',
+        'place_of_delivery_on_carrier',
         'place_of_receipt',
         'exporting_carrier',
         'type_of_move',
@@ -45,6 +54,11 @@ class CertificateOfOrigin extends Model
     public function shipment()
     {
         return $this->belongsTo(Shipment::class);
+    }
+
+    public function packingList()
+    {
+        return $this->belongsTo(PackingList::class);
     }
 
     public function user()

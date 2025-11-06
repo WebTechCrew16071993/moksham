@@ -5,6 +5,7 @@ namespace App\Filament\Resources\PackingListResource\Pages;
 use App\Filament\Resources\PackingListResource;
 use App\Models\PackingList;
 use App\Services\InvoiceGenerator;
+use App\Services\CertificateGenerator;
 use Illuminate\Support\Facades\Log;
 use Filament\Resources\Pages\CreateRecord;
 
@@ -68,6 +69,22 @@ class CreatePackingList extends CreateRecord
             ]);
         } catch (\Throwable $e) {
             Log::error('CreatePackingList: invoice generation failed', [
+                'packing_list_id' => $record->getKey(),
+                'error' => $e->getMessage(),
+            ]);
+        }
+
+        try {
+            /** @var CertificateGenerator $cooGen */
+            $cooGen = app(CertificateGenerator::class);
+            $coo = $cooGen->generateOrUpdateForPackingList($record);
+            Log::info('CreatePackingList: COO generated after create', [
+                'packing_list_id' => $record->getKey(),
+                'certificate_id' => $coo->getKey(),
+                'document_no' => $coo->document_no,
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('CreatePackingList: COO generation failed', [
                 'packing_list_id' => $record->getKey(),
                 'error' => $e->getMessage(),
             ]);
