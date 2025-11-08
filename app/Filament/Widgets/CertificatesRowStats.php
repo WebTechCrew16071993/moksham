@@ -52,6 +52,7 @@ class CertificatesRowStats extends Widget
 
     public static function canView(): bool
     {
-        return true; // Page includes it explicitly
+        // Do not render on the main dashboard; allow on pages that include it explicitly
+        return !request()->routeIs('filament.admin.pages.dashboard');
     }
 }

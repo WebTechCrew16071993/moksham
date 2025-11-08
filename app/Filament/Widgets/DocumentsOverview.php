@@ -21,14 +21,15 @@ class DocumentsOverview extends BaseWidget
     {
         $intentList = $this->getIntent();
         $packagingList = $this->getPackagingListCount();
-        $cca = $this->getCcaCount();
-        $psic = $this->getPsicCount();
-        $cco = $this->getCcoCount();
+        // $cca = $this->getCcaCount();
+        // $psic = $this->getPsicCount();
+        // $cco = $this->getCcoCount();
         $form6 = $this->getForm6Count();
         $form9 = $this->getForm9Count();
         $invoices = $this->getInvoicesCount();
 
-        $total = $intentList  + $packagingList + $cca + $psic + $cco + $form6 + $form9 + $invoices;
+        $total = $intentList  + $packagingList + $form6 + $form9 + $invoices;
+        // $total = $intentList  + $packagingList + $cca + $psic + $cco + $form6 + $form9 + $invoices;
 
         return [
             Card::make('Total Documents', (string) $total)
@@ -56,20 +57,22 @@ class DocumentsOverview extends BaseWidget
                 ->url(PackingListResource::getUrl('index'))
                 ->extraAttributes(['wire:navigate' => true]),
 
-            Card::make('CCA', (string) $cca)
-                ->description('Certificate Chemical Analysis')
-                ->color('info')
-                ->icon('heroicon-o-document-text'),
+            // Card::make('COO', (string) $cco)
+            //     ->color('gray')
+            //     ->icon('heroicon-o-clipboard-document-check')
+            //     ->url(CertificateOfOriginResource::getUrl('index'))
+            //     ->extraAttributes(['wire:navigate' => true]),
 
-            Card::make('PSIC', (string) $psic)
-                ->color('warning')
-                ->icon('heroicon-o-shield-check'),
+            // Card::make('CCA', (string) $cca)
+            //     ->description('Certificate Chemical Analysis')
+            //     ->color('info')
+            //     ->icon('heroicon-o-document-text'),
 
-            Card::make('CCO', (string) $cco)
-                ->color('gray')
-                ->icon('heroicon-o-clipboard-document-check')
-                ->url(CertificateOfOriginResource::getUrl('index'))
-                ->extraAttributes(['wire:navigate' => true]),
+            // Card::make('PSIC', (string) $psic)
+            //     ->color('warning')
+            //     ->icon('heroicon-o-shield-check'),
+
+            
 
             Card::make('Form 6', (string) $form6)
                 ->color('indigo')

@@ -131,6 +131,12 @@ class CompanySettings extends Page implements HasForms
                             ->imagePreviewHeight('150')
                             ->helperText('PNG, JPG or WebP. Max 2MB.' )
                             ->openable(),
+                        Forms\Components\Textarea::make('company_signature_text')
+                            ->label('Company Signature Text')
+                            ->rows(3)
+                            ->maxLength(1000)
+                            ->placeholder('Enter signature text')
+                            ->columnSpanFull(),
                     ]),
             ])
             ->statePath('data');

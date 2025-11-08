@@ -13,6 +13,7 @@ use Filament\Tables\Filters\TrashedFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Auth;
+use Filament\Notifications\Notification;
 
 class HsnCodeResource extends Resource
 {
@@ -64,9 +65,6 @@ class HsnCodeResource extends Resource
                         Forms\Components\TextInput::make('description')
                             ->label('Description')
                             ->maxLength(255),
-                        Forms\Components\Toggle::make('is_active')
-                            ->label('Active')
-                            ->default(true),
                     ])->columns(2),
             ]);
     }
@@ -78,7 +76,6 @@ class HsnCodeResource extends Resource
                 Tables\Columns\TextColumn::make('code')->label('HSN Code')->searchable()->sortable(),
                 Tables\Columns\TextColumn::make('category')->sortable()->badge(),
                 // Tables\Columns\TextColumn::make('description')->limit(50)->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\IconColumn::make('is_active')->boolean()->label('Active')->sortable(),
                 Tables\Columns\TextColumn::make('created_at')->since()->sortable(),
             ])
             // ->filters([
@@ -94,7 +91,18 @@ class HsnCodeResource extends Resource
             // ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\DeleteAction::make()
+                    ->before(function (HsnCode $record, Tables\Actions\DeleteAction $action) {
+                        // Prevent delete if referenced by any indent
+                        if (method_exists($record, 'indents') && $record->indents()->exists()) {
+                            Notification::make()
+                                ->title('Cannot delete HSN Code')
+                                ->body('This HSN code is used in one or more Indents and cannot be deleted.')
+                                ->danger()
+                                ->send();
+                            $action->cancel();
+                        }
+                    }),
                 Tables\Actions\ForceDeleteAction::make(),
                 Tables\Actions\RestoreAction::make(),
             ]);

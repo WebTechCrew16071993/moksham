@@ -56,8 +56,8 @@ class CertificatesOverview extends BaseWidget
 
     public static function canView(): bool
     {
-        // Always allow; the ListCertificatesOfOrigin page explicitly includes this widget.
-        return true;
+        // Show on resource pages but not on the main dashboard
+        return !request()->routeIs('filament.admin.pages.dashboard');
     }
 
     protected function applyTableFilters(Builder $query): void

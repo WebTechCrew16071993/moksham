@@ -39,9 +39,8 @@ class IndentsOverview extends BaseWidget
 
     public static function canView(): bool
     {
-        // Always allow; ListIndents explicitly includes this widget on the Indents index.
-        // Returning true avoids hiding during Livewire sub-requests (search/sort) where routeIs may not match.
-        return true;
+        // Do not render on the main dashboard; allow on resource pages that explicitly include it.
+        return !request()->routeIs('filament.admin.pages.dashboard');
     }
 
     /**

@@ -14,7 +14,6 @@ class Dashboard extends BaseDashboard
     public function getWidgets(): array
     {
         return [
-            \App\Filament\Widgets\IndentsOverview::class,
             \App\Filament\Widgets\DocumentsOverview::class,
         ];
     }

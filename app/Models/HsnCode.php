@@ -14,10 +14,20 @@ class HsnCode extends Model
         'category',
         'code',
         'description',
-        'is_active',
     ];
 
-    protected $casts = [
-        'is_active' => 'boolean',
-    ];
+    public function indents()
+    {
+        return $this->hasMany(Indent::class, 'hsn_code_id');
+    }
+
+    protected static function booted(): void
+    {
+        static::deleting(function (self $hsn) {
+            // Block deletion (including soft delete) if linked to any indents
+            if ($hsn->indents()->exists()) {
+                throw new \RuntimeException('Cannot delete HSN Code: it is used in one or more Indents.');
+            }
+        });
+    }
 }
