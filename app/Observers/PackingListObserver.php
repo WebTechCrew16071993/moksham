@@ -4,6 +4,9 @@ namespace App\Observers;
 
 use App\Models\Invoice;
 use App\Models\PackingList;
+use App\Models\BlCorrection;
+use App\Models\BlCorrectionItem;
+use App\Models\CompanySetting;
 use App\Services\CertificateGenerator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -12,14 +15,18 @@ class PackingListObserver
 {
     public function created(PackingList $packingList): void
     {
-        $this->syncInvoice($packingList);
-        $this->syncCertificate($packingList);
+        // Invoice generation is handled via BL approval workflow now.
+        // $this->syncInvoice($packingList);
+        // $this->syncCertificate($packingList);
+        $this->syncBl($packingList);
     }
 
     public function updated(PackingList $packingList): void
     {
-        $this->syncInvoice($packingList);
-        $this->syncCertificate($packingList);
+        // Invoice generation is handled via BL approval workflow now.
+        // $this->syncInvoice($packingList);
+        // $this->syncCertificate($packingList);
+        $this->syncBl($packingList);
     }
 
     protected function syncInvoice(PackingList $packingList): void
@@ -138,6 +145,109 @@ class PackingListObserver
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
                 'packing_list_id' => $packingList->getKey(),
+            ]);
+        }
+    }
+
+    /**
+     * Ensure a BL draft exists and stays in sync with the Packing List.
+     */
+    protected function syncBl(PackingList $packingList): void
+    {
+
+        try {
+            $packingList->loadMissing(['shipment.indent', 'items']);
+            $shipment = $packingList->shipment;
+            $indent = $shipment?->indent;
+
+            $setting = CompanySetting::query()->first();
+            $shipperDetails = $setting ? trim(implode("\n", array_filter([
+                $setting->company_name,
+                $setting->company_address,
+                trim(($setting->company_city.' '.$setting->company_state.' '.$setting->company_zip)),
+                $setting->company_country,
+            ]))) : null;
+
+            $consigneeBlock = $indent ? trim(implode("\n", array_filter([
+                $indent->consignee_name,
+                $indent->consignee_address,
+                trim(($indent->consignee_city.' '.$indent->consignee_state.' '.$indent->consignee_zip)),
+                $indent->consignee_country,
+            ]))) : null;
+
+            $kg = (float) ($packingList->total_weight_kg ?? 0);
+            if ($kg <= 0) {
+                $kg = (float) $packingList->items->sum('weight_kg');
+            }
+            $mts = round($kg / 1000, 3);
+
+            $bl = BlCorrection::query()
+                ->where('packing_list_id', $packingList->getKey())
+                ->latest('id')
+                ->first();
+            if (!$bl) {
+                $bl = new BlCorrection();
+                $bl->shipment_id = $packingList->shipment_id;
+                $bl->packing_list_id = $packingList->getKey();
+                $bl->user_id = $packingList->user_id ?? Auth::id();
+                $bl->booking_no = $shipment?->booking_no;
+                $bl->bl_date = now()->toDateString();
+                $bl->status = 'draft';
+            }
+
+            $bl->fill([
+                'shipper_details' => $shipperDetails,
+                'shipper_phone' => $setting?->company_phone,
+                'shipper_email' => $setting?->company_email,
+                'consignee_details' => $consigneeBlock,
+                'consignee_iec' => $indent?->consignee_iec,
+                'consignee_gstin' => $indent?->consignee_gstin,
+                'consignee_pan' => $indent?->consignee_pan,
+                'consignee_email' => $indent?->consignee_email,
+                'notify_party_details' => $consigneeBlock,
+                'notify_party_iec' => $indent?->consignee_iec,
+                'notify_party_gstin' => $indent?->consignee_gstin,
+                'notify_party_pan' => $indent?->consignee_pan,
+                'notify_party_email' => $indent?->consignee_email,
+                'port_of_loading' => (string) $packingList->origin,
+                'origin' => (string) $packingList->origin,
+                'destination' => (string) $packingList->destination,
+                'net_weight_kgs' => $kg,
+                'net_weight_mts' => $mts,
+                'packaging_type' => 'BALE, COMPRESSED',
+                'ship_in' => (string) $packingList->ship_in,
+                'no_of_containers' => $packingList->items->count(),
+                'container_type' => (string) $packingList->ship_in,
+                'total_bales' => (int) ($packingList->total_bales ?? $packingList->items->sum('no_of_bales')),
+                'hs_code' => $indent?->hsn_code,
+                'commodity_description' => $indent && $indent->hsn_description && $indent->hsn_code
+                    ? (trim($indent->hsn_description) . ' HS CODE ' . trim($indent->hsn_code))
+                    : null,
+            ]);
+            $bl->saveQuietly();
+
+            // Rebuild BL items
+            $bl->items()->delete();
+            foreach ($packingList->items as $row) {
+                BlCorrectionItem::create([
+                    'bl_correction_id' => $bl->getKey(),
+                    'container_no' => (string) $row->container_no,
+                    'seal_no' => (string) $row->seal_no,
+                    'commodity' => (string) ($row->description ?? $bl->commodity_description),
+                    'hs_code' => (string) ($bl->hs_code ?? $indent?->hsn_code),
+                    'no_of_bales' => (int) $row->no_of_bales,
+                    'weight_kgs' => (float) $row->weight_kg,
+                ]);
+            }
+
+            Log::info('PackingListObserver: BL synced', [
+                'packing_list_id' => $packingList->getKey(),
+                'bl_id' => $bl->getKey(),
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('PackingListObserver: BL sync failed', [
+                'packing_list_id' => $packingList->getKey(),
+                'error' => $e->getMessage(),
             ]);
         }
     }

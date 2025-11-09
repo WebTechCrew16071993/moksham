@@ -5,6 +5,8 @@ use App\Http\Controllers\IndentPrintController;
 use App\Http\Controllers\PackingListPrintController;
 use App\Http\Controllers\InvoicePrintController;
 use App\Http\Controllers\CertificatePrintController;
+use App\Http\Controllers\BlCorrectionPrintController;
+use App\Http\Controllers\Form6PrintController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -33,4 +35,12 @@ Route::post('/packing-lists/{packingList}/generate-invoice', [InvoicePrintContro
 // Certificate of Origin printable view/PDF
 Route::get('/certificates/{certificate}/print', [CertificatePrintController::class, 'show'])->name('certificates.print');
 Route::get('/certificates/{certificate}/pdf', [CertificatePrintController::class, 'pdf'])->name('certificates.pdf');
+
+// BL printable view/PDF
+Route::get('/bls/{bl}/print', [BlCorrectionPrintController::class, 'show'])->name('bls.print');
+Route::get('/bls/{bl}/pdf', [BlCorrectionPrintController::class, 'pdf'])->name('bls.pdf');
+
+// Form 6 printable view/PDF
+Route::get('/form6/{form6}/print', [Form6PrintController::class, 'show'])->name('form6.print');
+Route::get('/form6/{form6}/pdf', [Form6PrintController::class, 'pdf'])->name('form6.pdf');
 

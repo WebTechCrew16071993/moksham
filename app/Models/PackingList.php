@@ -60,6 +60,16 @@ class PackingList extends Model
         return $this->shipment?->invoices()->latest()->first();
     }
 
+    public function blCorrections()
+    {
+        return $this->hasMany(BlCorrection::class);
+    }
+
+    public function latestBl()
+    {
+        return $this->blCorrections()->latest()->first();
+    }
+
     // Accessors: compute totals from items when not stored
     public function getTotalBalesAttribute($value)
     {

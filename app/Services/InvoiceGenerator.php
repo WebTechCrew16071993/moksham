@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Invoice;
 use App\Models\PackingList;
+use App\Models\BlCorrection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
@@ -123,6 +124,24 @@ class InvoiceGenerator
 
                 $invoice->fill($data);
                 $invoice->saveQuietly();
+
+                // Link invoice <-> BL if available
+                $bl = BlCorrection::query()
+                    ->where('packing_list_id', $packingList->getKey())
+                    ->latest('id')->first();
+                if (!$bl && $shipment) {
+                    $bl = BlCorrection::query()->where('shipment_id', $shipment->getKey())->latest('id')->first();
+                }
+                if ($bl) {
+                    if (!$invoice->bl_correction_id) {
+                        $invoice->bl_correction_id = $bl->getKey();
+                        $invoice->saveQuietly();
+                    }
+                    if (!$bl->invoice_id) {
+                        $bl->invoice_id = $invoice->getKey();
+                        $bl->saveQuietly();
+                    }
+                }
                 Log::info('InvoiceGenerator: updated existing invoice', ['invoice_id' => $invoice->getKey()]);
                 return $invoice;
             }
@@ -134,6 +153,21 @@ class InvoiceGenerator
                 $data['invoice_no'] = (string) $nextNo;
             }
             $created = Invoice::create($data);
+            // Link invoice <-> BL if available
+            $bl = BlCorrection::query()
+                ->where('packing_list_id', $packingList->getKey())
+                ->latest('id')->first();
+            if (!$bl && $shipment) {
+                $bl = BlCorrection::query()->where('shipment_id', $shipment->getKey())->latest('id')->first();
+            }
+            if ($bl) {
+                $created->bl_correction_id = $bl->getKey();
+                $created->saveQuietly();
+                if (!$bl->invoice_id) {
+                    $bl->invoice_id = $created->getKey();
+                    $bl->saveQuietly();
+                }
+            }
             Log::info('InvoiceGenerator: created new invoice', ['invoice_id' => $created->getKey(), 'invoice_no' => $created->invoice_no]);
             return $created;
         } catch (\Throwable $e) {

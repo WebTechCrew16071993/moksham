@@ -167,6 +167,7 @@ class PackingListResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\TextColumn::make('id')->label('PL #')->searchable()->sortable(),
                 Tables\Columns\TextColumn::make('shipment.booking_no')->label('BKG #')->searchable(),
                 Tables\Columns\TextColumn::make('date')->date()->sortable(),
                 Tables\Columns\TextColumn::make('employee')->searchable(),
@@ -192,14 +193,38 @@ class PackingListResource extends Resource
                     'gray' => 'draft',
                     'success' => 'finalized',
                 ])->sortable(),
+                Tables\Columns\BadgeColumn::make('latest_bl_status')
+                    ->label('BL Status')
+                    ->getStateUsing(fn(PackingList $record) => optional($record->latestBl())->status)
+                    ->colors([
+                        'gray' => 'draft',
+                        'warning' => 'pending_review',
+                        'danger' => 'corrections_requested',
+                        'success' => 'approved',
+                        'primary' => 'finalized',
+                    ]),
                 Tables\Columns\TextColumn::make('created_at')->since()->sortable(),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\Action::make('openBl')
+                    ->label('Open BL')
+                    ->icon('heroicon-o-clipboard-document-list')
+                    ->action(function (PackingList $record) {
+                        $bl = $record->latestBl();
+                        if ($bl) {
+                            return redirect(\App\Filament\Resources\BlCorrectionResource::getUrl('edit', ['record' => $bl->getKey()]));
+                        }
+                        return redirect(\App\Filament\Resources\BlCorrectionResource::getUrl('create', [
+                            'shipment_id' => $record->shipment_id,
+                            'packing_list_id' => $record->getKey(),
+                        ]));
+                    }),
                 Tables\Actions\Action::make('generateInvoice')
                     ->label('Generate Invoice')
                     ->icon('heroicon-o-document-currency-dollar')
-                    ->visible(fn(PackingList $record) => !$record->shipment?->invoices()->exists())
+                    ->visible(fn(PackingList $record) => !$record->shipment?->invoices()->exists()
+                        && in_array(optional($record->latestBl())->status, ['approved', 'finalized']))
                     ->requiresConfirmation()
                     ->action(function (PackingList $record) {
                         $generator = app(InvoiceGenerator::class);
@@ -213,6 +238,7 @@ class PackingListResource extends Resource
                     ->openUrlInNewTab(),
                 Tables\Actions\Action::make('generateCoo')
                     ->label('Generate COO')
+                    ->hidden()
                     ->icon('heroicon-o-document-text')
                     ->requiresConfirmation()
                     ->action(function (PackingList $record) {

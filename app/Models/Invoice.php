@@ -13,6 +13,7 @@ class Invoice extends Model
     protected $fillable = [
         'packing_list_id',
         'shipment_id',
+        'bl_correction_id',
         'user_id',
         'consignee_id',
         'invoice_no',
@@ -65,6 +66,11 @@ class Invoice extends Model
     public function packingList()
     {
         return $this->belongsTo(PackingList::class);
+    }
+
+    public function blCorrection()
+    {
+        return $this->belongsTo(BlCorrection::class);
     }
 
     public function user()

@@ -42,4 +42,9 @@ class Shipment extends Model
     {
         return $this->hasMany(CertificateOfOrigin::class);
     }
+
+    public function blCorrections()
+    {
+        return $this->hasMany(BlCorrection::class);
+    }
 }

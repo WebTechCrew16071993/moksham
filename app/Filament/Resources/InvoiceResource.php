@@ -6,9 +6,11 @@ use App\Filament\Resources\InvoiceResource\Pages;
 use App\Models\ImportCompany;
 use App\Models\Invoice;
 use App\Models\Shipment;
+use App\Models\BlCorrection;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
+use Filament\Forms\Set;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -30,11 +32,39 @@ class InvoiceResource extends Resource
         return $form
             ->schema([
                 Forms\Components\Group::make()->columns(12)->schema([
+                    Forms\Components\Hidden::make('packing_list_id'),
                     Forms\Components\Select::make('shipment_id')
                         ->label('Shipment (Booking #)')
                         ->options(fn () => Shipment::query()->orderByDesc('booking_date')->pluck('booking_no', 'id'))
                         ->searchable()->preload()->native(false)
                         ->required()
+                        ->columnSpan(6),
+                    Forms\Components\Select::make('bl_correction_id')
+                        ->label('BL')
+                        ->options(function (Get $get) {
+                            $shipmentId = $get('shipment_id');
+                            $query = BlCorrection::query()->latest('id');
+                            if ($shipmentId) {
+                                $query->where('shipment_id', $shipmentId);
+                            }
+                            return $query->take(100)->get()->mapWithKeys(function ($bl) {
+                                $label = ($bl->bl_no ? ($bl->bl_no.' - ') : '') . 'ID#'.$bl->id.' · BKG '.($bl->booking_no ?? '-') . ' · '.$bl->destination;
+                                return [$bl->id => $label];
+                            })->toArray();
+                        })
+                        ->searchable()
+                        ->required()
+                        ->preload()
+                        ->native(false)
+                        ->reactive()
+                        ->afterStateUpdated(function ($state, Set $set) {
+                            $bl = $state ? BlCorrection::find($state) : null;
+                            if ($bl) {
+                                if ($bl->shipment_id) $set('shipment_id', $bl->shipment_id);
+                                if ($bl->packing_list_id) $set('packing_list_id', $bl->packing_list_id);
+                                if ($bl->booking_no) $set('obl_ref', $bl->booking_no);
+                            }
+                        })
                         ->columnSpan(6),
                     Forms\Components\TextInput::make('invoice_no')->required()->unique(ignoreRecord: true)->columnSpan(3),
                     Forms\Components\DatePicker::make('date')->native(false)->required()->columnSpan(3),
@@ -158,6 +188,11 @@ class InvoiceResource extends Resource
                 Tables\Columns\TextColumn::make('invoice_no')->searchable()->sortable(),
                 Tables\Columns\TextColumn::make('date')->date()->sortable(),
                 Tables\Columns\TextColumn::make('shipment.booking_no')->label('BKG #')->searchable(),
+                Tables\Columns\TextColumn::make('blCorrection.id')
+                    ->label('BL #')
+                    ->formatStateUsing(fn($state, Invoice $record) => $record->blCorrection?->bl_no ?? $record->blCorrection?->id)
+                    ->url(fn (Invoice $record) => $record->blCorrection ? \App\Filament\Resources\BlCorrectionResource::getUrl('edit', ['record' => $record->blCorrection->getKey()]) : null)
+                    ->openUrlInNewTab(),
                 Tables\Columns\TextColumn::make('consignee.name')->label('Bill To')->searchable(),
                 Tables\Columns\TextColumn::make('amount')->money('usd', true)->sortable(),
                 Tables\Columns\BadgeColumn::make('status')->colors([
