@@ -211,6 +211,17 @@ class BlCorrectionResource extends Resource
             ])->sortable(),
             Tables\Columns\TextColumn::make('created_at')->since()->sortable(),
         ])
+        ->filters([
+            Tables\Filters\SelectFilter::make('status')
+                ->label('Status')
+                ->options([
+                    'draft' => 'Draft',
+                    'pending_review' => 'Pending Review',
+                    'corrections_requested' => 'Corrections Requested',
+                    'approved' => 'Approved',
+                    'finalized' => 'Finalized',
+                ]),
+        ])
         ->actions([
             Tables\Actions\EditAction::make(),
             Tables\Actions\Action::make('pdf')
@@ -305,7 +316,13 @@ class BlCorrectionResource extends Resource
                     $invoice = $generator->generateOrUpdateForPackingList($record->packingList);
                     return redirect()->route('invoices.pdf', ['invoice' => $invoice->getKey(), 'download' => 0]);
                 }),
-            Tables\Actions\DeleteAction::make(),
+            Tables\Actions\DeleteAction::make()
+                ->visible(function (BlCorrection $record) {
+                    $hasInvoice = \App\Models\Invoice::query()->where('bl_correction_id', $record->getKey())->exists();
+                    $hasForm6   = \App\Models\Form6Document::query()->where('bl_correction_id', $record->getKey())->exists();
+                    $hasForm9   = \App\Models\Form9Document::query()->where('bl_correction_id', $record->getKey())->exists();
+                    return !($hasInvoice || $hasForm6 || $hasForm9);
+                }),
         ]);
     }
 

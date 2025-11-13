@@ -14,6 +14,7 @@ use Filament\Forms\Set;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Storage;
 
 class Form6DocumentResource extends Resource
 {
@@ -43,6 +44,28 @@ class Form6DocumentResource extends Resource
                 Forms\Components\TextInput::make('form6_no')->required()->columnSpan(4),
                 Forms\Components\DatePicker::make('form6_date')->native(false)->required()->columnSpan(4),
                 Forms\Components\TextInput::make('applicant_ref_no')->columnSpan(4),
+                Forms\Components\Select::make('status')
+                    ->label('Status')
+                    ->options([
+                        'draft' => 'Draft',
+                        'submitted' => 'Signed by exporter',
+                        'in_transit' => 'Delivered to importer (In transit)',
+                        'received' => 'Received (latest)',
+                        'completed' => 'Completed',
+                    ])
+                    ->native(false)
+                    ->reactive()
+                    ->columnSpan(4),
+                Forms\Components\FileUpload::make('pdf_path')
+                    ->label('Upload signed PDF')
+                    ->helperText('Upload the latest signed PDF after delivering to importer')
+                    ->acceptedFileTypes(['application/pdf'])
+                    ->directory('form6/uploads')
+                    ->disk('public')
+                    ->downloadable()
+                    ->openable()
+                    ->visible(fn(\Filament\Forms\Get $get) => ($get('status') === 'in_transit'))
+                    ->columnSpanFull(),
             ]),
 
             Forms\Components\Section::make('1. Exporter')->schema([
@@ -151,22 +174,22 @@ class Form6DocumentResource extends Resource
             ]),
 
             // 14. Shipment received by importer
-            Forms\Components\Section::make('14. Shipment received by importer')->schema([
-                Forms\Components\Group::make()->columns(12)->schema([
-                    Forms\Components\TextInput::make('quantity_received_kgs')->label('Quantity received (kgs)')->numeric()->columnSpan(6),
-                    Forms\Components\TextInput::make('importer_signature_name')->label('Importer signature / name')->columnSpan(3),
-                    Forms\Components\DatePicker::make('importer_signature_date')->label('Importer date')->native(false)->columnSpan(3),
-                ]),
-            ]),
+            // Forms\Components\Section::make('14. Shipment received by importer')->schema([
+            //     Forms\Components\Group::make()->columns(12)->schema([
+            //         Forms\Components\TextInput::make('quantity_received_kgs')->label('Quantity received (kgs)')->numeric()->columnSpan(6),
+            //         Forms\Components\TextInput::make('importer_signature_name')->label('Importer signature / name')->columnSpan(3),
+            //         Forms\Components\DatePicker::make('importer_signature_date')->label('Importer date')->native(false)->columnSpan(3),
+            //     ]),
+            // ]),
 
-            // 15. Corresponding to applicant ref / R code / Technology employed
-            Forms\Components\Section::make('15. Applicant Ref / R code / Technology')->schema([
-                Forms\Components\Group::make()->columns(12)->schema([
-                    Forms\Components\TextInput::make('importer_applicant_ref_no')->label('Corresponding to applicant Ref No., if any')->columnSpan(4),
-                    Forms\Components\TextInput::make('r_code')->label('R code')->columnSpan(4),
-                    Forms\Components\TextInput::make('technology_employed')->label('Technology employed')->columnSpan(4),
-                ]),
-            ]),
+            // // 15. Corresponding to applicant ref / R code / Technology employed
+            // Forms\Components\Section::make('15. Applicant Ref / R code / Technology')->schema([
+            //     Forms\Components\Group::make()->columns(12)->schema([
+            //         Forms\Components\TextInput::make('importer_applicant_ref_no')->label('Corresponding to applicant Ref No., if any')->columnSpan(4),
+            //         Forms\Components\TextInput::make('r_code')->label('R code')->columnSpan(4),
+            //         Forms\Components\TextInput::make('technology_employed')->label('Technology employed')->columnSpan(4),
+            //     ]),
+            // ]),
 
             // 16. Importer certification
             Forms\Components\Section::make('16. Importer certification')->schema([
@@ -184,9 +207,9 @@ class Form6DocumentResource extends Resource
             ]),
 
             // 17. Specific conditions
-            Forms\Components\Section::make('17. Specific conditions')->schema([
-                Forms\Components\Textarea::make('specific_conditions')->rows(2)->columnSpanFull(),
-            ]),
+            // Forms\Components\Section::make('17. Specific conditions')->schema([
+            //     Forms\Components\Textarea::make('specific_conditions')->rows(2)->columnSpanFull(),
+            // ]),
 
             // Notes (placed after 17 and before Recovery Operations)
             Forms\Components\Section::make('Notes')->schema([
@@ -204,51 +227,10 @@ class Form6DocumentResource extends Resource
                     ->columnSpanFull(),
             ]),
 
-            // Recovery Operations (*)
-            Forms\Components\Section::make('Recovery Operations (*)')->schema([
-                Forms\Components\Repeater::make('recovery_operations')
-                    ->label('Add Recovery Operation')
-                    ->defaultItems(0)
-                    ->columns(12)
-                    ->schema([
-                        Forms\Components\Select::make('code')
-                            ->options([
-                                'R1' => 'R1', 'R2' => 'R2', 'R3' => 'R3', 'R4' => 'R4', 'R5' => 'R5',
-                                'R6' => 'R6', 'R7' => 'R7', 'R8' => 'R8', 'R9' => 'R9', 'R10' => 'R10', 'R11' => 'R11',
-                            ])
-                            ->reactive()
-                            ->afterStateUpdated(function ($state, Set $set) {
-                                $map = [
-                                    'R1' => 'Use as a fuel (other than in direct incineration) or other means to generate energy.',
-                                    'R2' => 'Solvent reclamation/regeneration.',
-                                    'R3' => 'Recycling/reclamation of organic substances which are not used as solvents.',
-                                    'R4' => 'Recycling/reclamation of metals and metal compounds.',
-                                    'R5' => 'Recycling/reclamation of other inorganic materials.',
-                                    'R6' => 'Regeneration of acids or bases.',
-                                    'R7' => 'Recovery of components used for pollution abatement.',
-                                    'R8' => 'Recovery of components from catalysts.',
-                                    'R9' => 'Used oil re-refining or other reuses of previously used oil.',
-                                    'R10' => 'Land treatment resulting in benefit to agriculture or ecological improvement',
-                                    'R11' => 'Uses of residual materials obtained from any of the operations numbered R1 to R10',
-                                ];
-                                if ($state && isset($map[$state])) {
-                                    $set('description', $map[$state]);
-                                }
-                            })
-                            ->required()
-                            ->columnSpan(2),
-                        Forms\Components\Textarea::make('description')
-                            ->rows(2)
-                            ->required()
-                            ->columnSpan(10),
-                    ])
-                    ->addActionLabel('Add Recovery Operation')
-                    ->reorderable()
-                    ->columnSpanFull(),
-            ]),
+            // Recovery Operations removed from management UI; rendered as static image in PDF
 
-            Forms\Components\Section::make('Notes & Signatures')->schema([
-                Forms\Components\Textarea::make('terms_and_description')->label('Terms and description')->rows(3)->columnSpanFull(),
+            Forms\Components\Section::make('Place & Designation')->schema([
+                // Forms\Components\Textarea::make('terms_and_description')->label('Terms and description')->rows(3)->columnSpanFull(),
                 Forms\Components\Group::make()->columns(12)->schema([
                     Forms\Components\TextInput::make('signature_place')->label('Place')->columnSpan(4),
                     Forms\Components\TextInput::make('signature_designation')->label('Designation')->columnSpan(4),
@@ -260,28 +242,67 @@ class Form6DocumentResource extends Resource
     public static function table(Table $table): Table
     {
         return $table->columns([
-            Tables\Columns\TextColumn::make('id')->label('F6 #')->sortable(),
-            Tables\Columns\TextColumn::make('form6_no')->sortable()->searchable(),
-            Tables\Columns\TextColumn::make('form6_date')->date()->sortable(),
+            // Tables\Columns\TextColumn::make('id')->label('F6 #')->sortable(),
+            Tables\Columns\TextColumn::make('form6_no')->label('No')->sortable()->searchable(),
+            Tables\Columns\TextColumn::make('form6_date')->label('Date')->date()->sortable(),
             Tables\Columns\TextColumn::make('invoice.invoice_no')->label('Invoice')->searchable(),
             Tables\Columns\TextColumn::make('shipment.booking_no')->label('BKG #')->searchable(),
-            Tables\Columns\BadgeColumn::make('status')->colors([
-                'gray' => 'draft',
-                'info' => 'submitted',
-                'success' => 'approved',
-                'warning' => 'in_transit',
-                'primary' => 'received',
-                'secondary' => 'completed',
-            ])->sortable(),
+            Tables\Columns\BadgeColumn::make('status')
+                ->label('Status')
+                ->formatStateUsing(function ($state) {
+                    $labels = [
+                        'draft' => 'Draft',
+                        'submitted' => 'Signed by exporter',
+                        'in_transit' => 'Delivered to importer (In transit)',
+                        'received' => 'Received (latest)',
+                        'completed' => 'Completed',
+                    ];
+                    return $labels[$state] ?? $state;
+                })
+                ->colors([
+                    'gray' => 'draft',
+                    'info' => 'submitted',
+                    'warning' => 'in_transit',
+                    'primary' => 'received',
+                    'success' => 'completed',
+                ])
+                ->sortable(),
+            Tables\Columns\TextColumn::make('pdf_path')
+                ->label('Signed PDF')
+                ->formatStateUsing(fn ($state) => $state ? 'Download' : '-')
+                ->url(fn ($record) => $record?->pdf_path ? Storage::disk('public')->url($record->pdf_path) : null)
+                ->openUrlInNewTab()
+                ->toggleable()
+                ->visible(fn ($record) => filled($record?->pdf_path)),
             Tables\Columns\TextColumn::make('created_at')->since()->sortable(),
+        ])->filters([
+            Tables\Filters\SelectFilter::make('status')
+                ->label('Status')
+                ->options([
+                    'draft' => 'Draft',
+                    'submitted' => 'Signed by exporter',
+                    'in_transit' => 'Delivered to importer (In transit)',
+                    'received' => 'Received (latest)',
+                    'completed' => 'Completed',
+                ]),
         ])->actions([
             Tables\Actions\EditAction::make(),
+            Tables\Actions\Action::make('signedPdf')
+                ->label('Signed PDF')
+                ->icon('heroicon-o-document-arrow-down')
+                ->url(fn ($record) => $record?->pdf_path ? Storage::disk('public')->url($record->pdf_path) : null)
+                ->openUrlInNewTab()
+                ->visible(fn ($record) => filled($record?->pdf_path)),
             Tables\Actions\Action::make('pdf')
                 ->label('PDF')
                 ->icon('heroicon-o-arrow-down-tray')
                 ->url(fn(Form6Document $record) => route('form6.pdf', ['form6' => $record->getKey(), 'download' => 0]))
                 ->openUrlInNewTab(),
-            Tables\Actions\DeleteAction::make(),
+            Tables\Actions\DeleteAction::make()
+                ->visible(function (Form6Document $record) {
+                    $hasForm9 = \App\Models\Form9Document::query()->where('form6_id', $record->getKey())->exists();
+                    return !$hasForm9;
+                }),
         ]);
     }
 
@@ -291,6 +312,13 @@ class Form6DocumentResource extends Resource
             'index' => Pages\ListForm6Documents::route('/'),
             'create' => Pages\CreateForm6Document::route('/create'),
             'edit' => Pages\EditForm6Document::route('/{record}/edit'),
+        ];
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            \App\Filament\Resources\Form6DocumentResource\RelationManagers\HistoriesRelationManager::class,
         ];
     }
 }

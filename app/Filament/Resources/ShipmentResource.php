@@ -111,9 +111,26 @@ class ShipmentResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')->since()->sortable(),
             ])
+            ->filters([
+                Tables\Filters\SelectFilter::make('status')
+                    ->label('Status')
+                    ->options([
+                        'draft' => 'Draft',
+                        'confirmed' => 'Confirmed',
+                        'in_transit' => 'In Transit',
+                        'completed' => 'Completed',
+                        'cancelled' => 'Cancelled',
+                    ]),
+            ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\DeleteAction::make()
+                    ->visible(function (\App\Models\Shipment $record) {
+                        $hasPackingList = \App\Models\PackingList::query()->where('shipment_id', $record->getKey())->exists();
+                        $hasBl          = \App\Models\BlCorrection::query()->where('shipment_id', $record->getKey())->exists();
+                        $hasInvoice     = \App\Models\Invoice::query()->where('shipment_id', $record->getKey())->exists();
+                        return !($hasPackingList || $hasBl || $hasInvoice);
+                    }),
             ]);
     }
 

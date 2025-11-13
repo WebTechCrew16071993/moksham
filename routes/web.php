@@ -7,6 +7,7 @@ use App\Http\Controllers\InvoicePrintController;
 use App\Http\Controllers\CertificatePrintController;
 use App\Http\Controllers\BlCorrectionPrintController;
 use App\Http\Controllers\Form6PrintController;
+use App\Http\Controllers\Form9PrintController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -43,4 +44,8 @@ Route::get('/bls/{bl}/pdf', [BlCorrectionPrintController::class, 'pdf'])->name('
 // Form 6 printable view/PDF
 Route::get('/form6/{form6}/print', [Form6PrintController::class, 'show'])->name('form6.print');
 Route::get('/form6/{form6}/pdf', [Form6PrintController::class, 'pdf'])->name('form6.pdf');
+
+// Form 9 printable view/PDF
+Route::get('/form9/{form9}/print', [Form9PrintController::class, 'show'])->name('form9.print');
+Route::get('/form9/{form9}/pdf', [Form9PrintController::class, 'pdf'])->name('form9.pdf');
 

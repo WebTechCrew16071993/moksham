@@ -205,6 +205,14 @@ class PackingListResource extends Resource
                     ]),
                 Tables\Columns\TextColumn::make('created_at')->since()->sortable(),
             ])
+            ->filters([
+                Tables\Filters\SelectFilter::make('status')
+                    ->label('Status')
+                    ->options([
+                        'draft' => 'Draft',
+                        'finalized' => 'Finalized',
+                    ]),
+            ])
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\Action::make('openBl')
@@ -246,7 +254,12 @@ class PackingListResource extends Resource
                         $certificate = $generator->generateOrUpdateForPackingList($record);
                         return redirect()->route('certificates.pdf', ['certificate' => $certificate->getKey(), 'download' => 0]);
                     }),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\DeleteAction::make()
+                    ->visible(function (PackingList $record) {
+                        $hasBl = \App\Models\BlCorrection::query()->where('packing_list_id', $record->getKey())->exists();
+                        $hasInvoice = \App\Models\Invoice::query()->where('packing_list_id', $record->getKey())->exists();
+                        return !($hasBl || $hasInvoice);
+                    }),
             ]);
     }
 

@@ -123,7 +123,8 @@ class InvoiceGenerator
                 $data['f_dest'] = $finalDest;
 
                 $invoice->fill($data);
-                $invoice->saveQuietly();
+                // Use normal save to ensure model events (updated/saved) fire and observers run
+                $invoice->save();
 
                 // Link invoice <-> BL if available
                 $bl = BlCorrection::query()
@@ -135,7 +136,8 @@ class InvoiceGenerator
                 if ($bl) {
                     if (!$invoice->bl_correction_id) {
                         $invoice->bl_correction_id = $bl->getKey();
-                        $invoice->saveQuietly();
+                        // Fire events so observers can react to BL linkage changes if needed
+                        $invoice->save();
                     }
                     if (!$bl->invoice_id) {
                         $bl->invoice_id = $invoice->getKey();

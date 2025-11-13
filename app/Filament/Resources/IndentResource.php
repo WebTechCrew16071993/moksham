@@ -223,9 +223,24 @@ class IndentResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')->since()->sortable(),
             ])
+            ->filters([
+                Tables\Filters\SelectFilter::make('status')
+                    ->label('Status')
+                    ->options([
+                        'draft' => 'Draft',
+                        'generated' => 'Generated (Shipper signed)',
+                        'sent_to_consignee' => 'Sent to Consignee',
+                        'signed_by_consignee' => 'Signed by Consignee',
+                        'completed' => 'Completed',
+                    ]),
+            ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\DeleteAction::make()
+                    ->visible(function (Indent $record) {
+                        $hasShipment = \App\Models\Shipment::query()->where('indent_id', $record->getKey())->exists();
+                        return !$hasShipment;
+                    }),
                 Tables\Actions\Action::make('pdf')
                     ->label('PDF')
                     ->icon('heroicon-o-arrow-down-tray')

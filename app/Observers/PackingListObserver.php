@@ -115,7 +115,8 @@ class PackingListObserver
             if ($invoice) {
                 Log::info('PackingListObserver: Updating existing invoice', ['invoice_id' => $invoice->getKey()]);
                 $invoice->fill($data);
-                $invoice->saveQuietly();
+                // Use normal save so Eloquent events fire and InvoiceObserver runs
+                $invoice->save();
             } else {
                 // Double-check uniqueness for race conditions
                 if (Invoice::withTrashed()->where('invoice_no', (string) $nextNo)->exists()) {

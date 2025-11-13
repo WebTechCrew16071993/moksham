@@ -152,12 +152,26 @@
             <td>Exporter's declaration for hazardous and other waste</td>
             <td>
                 <div class="small">{{ $f->exporter_declaration }}</div>
-                <div>Signature</div>
-                <div style="height:30px;">{{ $f->exporter_signature_name }}</div>
-                <div>Name</div>
-                <div>{{ $f->exporter_signature_name }}</div>
-                <div>Date</div>
-                <div>{{ $f->exporter_signature_date?->format('d/m/Y') }}</div>
+                <table style="width:100%; border:0; margin-top:8px;">
+                    <tr>
+                        <td style="border:0; width:40%" class="small">Signature</td>
+                        <td style="border:0; width:60%">
+                            <div style="height:60px;">
+                                @if(!empty($f->exporter_signature_image_path))
+                                    <img src="{{ public_path('storage/'.ltrim($f->exporter_signature_image_path,'/')) }}" style="max-height:60px; max-width:100%;" />
+                                @endif
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="border:0;" class="small">Name</td>
+                        <td style="border:0;">{{ $f->exporter_signature_name }}</td>
+                    </tr>
+                    <tr>
+                        <td style="border:0;" class="small">Date</td>
+                        <td style="border:0;">{{ $f->exporter_signature_date?->format('d/m/Y') }}</td>
+                    </tr>
+                </table>
             </td>
         </tr>
         <tr>
@@ -188,8 +202,26 @@
             <td class="center">16</td>
             <td>I certify that nothing other than declared goods covered as per these rules is intended to be imported in the above referred consignment and will be recycled/utilized. Signature<br>Date</td>
             <td>
-                <div style="height:30px;">{{ $f->importer_certification_signature }}</div>
-                <div>{{ $f->importer_certification_date?->format('d/m/Y') }}</div>
+                <table style="width:100%; border:0;">
+                    <tr>
+                        <td style="border:0; width:40%" class="small">Signature</td>
+                        <td style="border:0; width:60%">
+                            <div style="height:60px;">
+                                @if(!empty($f->importer_signature_image_path))
+                                    <img src="{{ public_path('storage/'.ltrim($f->importer_signature_image_path,'/')) }}" style="max-height:60px; max-width:100%;" />
+                                @endif
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="border:0;" class="small">Name</td>
+                        <td style="border:0;">{{ $f->importer_certification_signature }}</td>
+                    </tr>
+                    <tr>
+                        <td style="border:0;" class="small">Date</td>
+                        <td style="border:0;">{{ $f->importer_certification_date?->format('d/m/Y') }}</td>
+                    </tr>
+                </table>
             </td>
         </tr>
         <tr>
@@ -220,14 +252,9 @@
             ['code' => 'R10', 'description' => 'Land treatment resulting in benefit to agriculture or ecological improvement'],
             ['code' => 'R11', 'description' => 'Uses of residual materials obtained from any of the operations numbered R1 to R10'],
         ];
-        $ops = is_array($f->recovery_operations) && count($f->recovery_operations) > 0
-            ? array_map(function($row) {
-                return ['code' => $row['code'] ?? '', 'description' => $row['description'] ?? ''];
-              }, $f->recovery_operations)
-            : $defaultOps;
     ?>
     <table style="border:1px solid #000;">
-        <?php foreach ($ops as $row): ?>
+        <?php foreach ($defaultOps as $row): ?>
             <tr>
                 <td style="width:10%; border:1px solid #000; padding:6px;"><strong>{{ $row['code'] }}</strong></td>
                 <td style="border:1px solid #000; padding:6px;">{{ $row['description'] }}</td>

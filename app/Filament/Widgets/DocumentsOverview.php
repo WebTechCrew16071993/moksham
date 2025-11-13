@@ -6,10 +6,16 @@ use App\Filament\Resources\IndentResource;
 use App\Filament\Resources\PackingListResource;
 use App\Filament\Resources\CertificateOfOriginResource;
 use App\Filament\Resources\InvoiceResource;
+use App\Filament\Resources\BlCorrectionResource;
+use App\Filament\Resources\Form6DocumentResource;
+use App\Filament\Resources\Form9DocumentResource;
 use App\Models\Indent;
 use App\Models\PackingList;
 use App\Models\CertificateOfOrigin;
 use App\Models\Invoice;
+use App\Models\BlCorrection;
+use App\Models\Form6Document;
+use App\Models\Form9Document;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Card;
 
@@ -27,8 +33,9 @@ class DocumentsOverview extends BaseWidget
         $form6 = $this->getForm6Count();
         $form9 = $this->getForm9Count();
         $invoices = $this->getInvoicesCount();
+        $bls = $this->getBlCount();
 
-        $total = $intentList  + $packagingList + $form6 + $form9 + $invoices;
+        $total = $intentList  + $packagingList + $bls + $form6 + $form9 + $invoices;
         // $total = $intentList  + $packagingList + $cca + $psic + $cco + $form6 + $form9 + $invoices;
 
         return [
@@ -44,6 +51,18 @@ class DocumentsOverview extends BaseWidget
                 ->url(IndentResource::getUrl('index'))
                 ->extraAttributes(['wire:navigate' => true]),
 
+            Card::make('Packaging List', (string) $packagingList)
+                ->color('success')
+                ->icon('heroicon-o-archive-box')
+                ->url(PackingListResource::getUrl('index'))
+                ->extraAttributes(['wire:navigate' => true]),
+
+            Card::make('BLs', (string) $bls)
+                ->color('orange')
+                ->icon('heroicon-o-document-text')
+                ->url(BlCorrectionResource::getUrl('index'))
+                ->extraAttributes(['wire:navigate' => true]),
+
             
             Card::make('Invoices', (string) $invoices)
                 ->color('rose')
@@ -51,12 +70,7 @@ class DocumentsOverview extends BaseWidget
                 ->url(InvoiceResource::getUrl('index'))
                 ->extraAttributes(['wire:navigate' => true]),
 
-            Card::make('Packaging List', (string) $packagingList)
-                ->color('success')
-                ->icon('heroicon-o-archive-box')
-                ->url(PackingListResource::getUrl('index'))
-                ->extraAttributes(['wire:navigate' => true]),
-
+           
             // Card::make('COO', (string) $cco)
             //     ->color('gray')
             //     ->icon('heroicon-o-clipboard-document-check')
@@ -76,11 +90,15 @@ class DocumentsOverview extends BaseWidget
 
             Card::make('Form 6', (string) $form6)
                 ->color('indigo')
-                ->icon('heroicon-o-document'),
+                ->icon('heroicon-o-document')
+                ->url(Form6DocumentResource::getUrl('index'))
+                ->extraAttributes(['wire:navigate' => true]),
 
             Card::make('Form 9', (string) $form9)
                 ->color('violet')
-                ->icon('heroicon-o-document'),
+                ->icon('heroicon-o-document')
+                ->url(Form9DocumentResource::getUrl('index'))
+                ->extraAttributes(['wire:navigate' => true]),
 
         ];
     }
@@ -91,7 +109,9 @@ class DocumentsOverview extends BaseWidget
     }
 
     // Dynamic counts (exclude drafts where applicable)
-    protected function getIntent(): int { return Indent::query()->count(); }
+    protected function getIntent(): int {
+        return Indent::query()->where(function($q){ $q->whereNull('status')->orWhere('status','!=','draft'); })->count();
+    }
     protected function getPackagingListCount(): int {
         return PackingList::query()->where('status', '!=', 'draft')->count();
     }
@@ -100,7 +120,16 @@ class DocumentsOverview extends BaseWidget
     protected function getCcoCount(): int {
         return CertificateOfOrigin::query()->where('status', '!=', 'draft')->count();
     }
-    protected function getForm6Count(): int { return 0; }
-    protected function getForm9Count(): int { return 0; }
-    protected function getInvoicesCount(): int { return Invoice::query()->count(); }
+    protected function getBlCount(): int {
+        return BlCorrection::query()->where(function($q){ $q->whereNull('status')->orWhere('status','!=','draft'); })->count();
+    }
+    protected function getForm6Count(): int {
+        return Form6Document::query()->where(function($q){ $q->whereNull('status')->orWhere('status','!=','draft'); })->count();
+    }
+    protected function getForm9Count(): int {
+        return Form9Document::query()->where(function($q){ $q->whereNull('status')->orWhere('status','!=','draft'); })->count();
+    }
+    protected function getInvoicesCount(): int {
+        return Invoice::query()->where(function($q){ $q->whereNull('status')->orWhere('status','!=','draft'); })->count();
+    }
 }

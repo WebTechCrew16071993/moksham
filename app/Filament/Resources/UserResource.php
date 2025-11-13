@@ -89,7 +89,8 @@ class UserResource extends Resource
                         'user' => 'User',
                     ]),
                 TernaryFilter::make('status')
-                    ->label('Active'),
+                    ->label('Active')
+                    ->default(null),
                 TrashedFilter::make(),
             ])
             ->actions([
@@ -129,7 +130,8 @@ class UserResource extends Resource
         return parent::getEloquentQuery()
             ->withoutGlobalScopes([
                 SoftDeletingScope::class,
-            ]);
+            ])
+            ->where('role', 'user');
     }
 
     // Restrict access to admins only

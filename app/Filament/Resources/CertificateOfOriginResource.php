@@ -378,7 +378,16 @@ class CertificateOfOriginResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')->since()->sortable(),
             ])
-            ->filters([])
+            ->filters([
+                Tables\Filters\SelectFilter::make('status')
+                    ->label('Status')
+                    ->options([
+                        'draft' => 'Draft',
+                        'owner_signed' => 'Owner Signed',
+                        'chamber_signed' => 'Chamber Signed',
+                        'completed' => 'Completed',
+                    ]),
+            ])
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\Action::make('downloadSignedPdf')

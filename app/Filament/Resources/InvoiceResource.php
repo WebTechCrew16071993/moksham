@@ -219,7 +219,12 @@ class InvoiceResource extends Resource
                     ->icon('heroicon-o-arrow-down-tray')
                     ->url(fn (Invoice $record) => route('invoices.pdf', ['invoice' => $record->getKey(), 'download' => 0]))
                     ->openUrlInNewTab(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\DeleteAction::make()
+                    ->visible(function (Invoice $record) {
+                        $hasForm6 = \App\Models\Form6Document::query()->where('invoice_id', $record->getKey())->exists();
+                        $hasForm9 = \App\Models\Form9Document::query()->where('invoice_id', $record->getKey())->exists();
+                        return !($hasForm6 || $hasForm9);
+                    }),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

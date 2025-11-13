@@ -5,10 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Traits\RecordsCustomsFormHistory;
 
 class Form6Document extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, RecordsCustomsFormHistory;
 
     protected $table = 'form6_documents';
 
@@ -51,4 +52,9 @@ class Form6Document extends Model
     public function bl(){ return $this->belongsTo(BlCorrection::class,'bl_correction_id'); }
     public function invoice(){ return $this->belongsTo(Invoice::class); }
     public function user(){ return $this->belongsTo(User::class); }
+    public function histories(){
+        return $this->hasMany(\App\Models\CustomsFormHistory::class, 'form_id')
+            ->where('form_type', 'form6')
+            ->latest('id');
+    }
 }
