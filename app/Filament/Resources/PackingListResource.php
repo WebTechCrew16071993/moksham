@@ -7,6 +7,7 @@ use App\Models\PackingList;
 use App\Models\Shipment;
 use App\Services\InvoiceGenerator;
 use App\Services\CertificateGenerator;
+use App\Services\DocumentPermissionService;
 use Filament\Forms;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Get;
@@ -25,6 +26,8 @@ class PackingListResource extends Resource
     protected static ?string $navigationGroup = 'Documents';
     protected static ?string $navigationLabel = 'Packing Lists';
     protected static ?int $navigationSort = 21;
+
+    protected static string $permissionResource = 'packing_lists';
 
     public static function form(Form $form): Form
     {
@@ -270,5 +273,30 @@ class PackingListResource extends Resource
             'create' => Pages\CreatePackingList::route('/create'),
             'edit' => Pages\EditPackingList::route('/{record}/edit'),
         ];
+    }
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        return DocumentPermissionService::canView(static::$permissionResource);
+    }
+
+    public static function canViewAny(): bool
+    {
+        return DocumentPermissionService::canView(static::$permissionResource);
+    }
+
+    public static function canCreate(): bool
+    {
+        return DocumentPermissionService::canCreate(static::$permissionResource);
+    }
+
+    public static function canEdit($record): bool
+    {
+        return DocumentPermissionService::canUpdate(static::$permissionResource);
+    }
+
+    public static function canDelete($record): bool
+    {
+        return DocumentPermissionService::canDelete(static::$permissionResource);
     }
 }

@@ -8,6 +8,7 @@ use App\Models\BlCorrection;
 use App\Models\BlCorrectionItem;
 use App\Models\CompanySetting;
 use App\Services\CertificateGenerator;
+use App\Services\ActivityLogger;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
@@ -19,6 +20,17 @@ class PackingListObserver
         // $this->syncInvoice($packingList);
         // $this->syncCertificate($packingList);
         $this->syncBl($packingList);
+
+        ActivityLogger::log('packing_list.created', [
+            'user_id' => $packingList->user_id ?? null,
+            'subject_type' => PackingList::class,
+            'subject_id' => $packingList->getKey(),
+            'subject_label' => 'PL #' . $packingList->getKey(),
+            'description' => 'Packing list created',
+            'changes' => [
+                'after' => $packingList->getAttributes(),
+            ],
+        ]);
     }
 
     public function updated(PackingList $packingList): void
@@ -27,6 +39,17 @@ class PackingListObserver
         // $this->syncInvoice($packingList);
         // $this->syncCertificate($packingList);
         $this->syncBl($packingList);
+
+        ActivityLogger::log('packing_list.updated', [
+            'user_id' => $packingList->user_id ?? null,
+            'subject_type' => PackingList::class,
+            'subject_id' => $packingList->getKey(),
+            'subject_label' => 'PL #' . $packingList->getKey(),
+            'description' => 'Packing list updated',
+            'changes' => [
+                'after' => $packingList->getAttributes(),
+            ],
+        ]);
     }
 
     protected function syncInvoice(PackingList $packingList): void

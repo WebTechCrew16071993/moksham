@@ -40,8 +40,7 @@ class Settings extends Page implements HasForms
         $user = Auth::user();
 
         $this->profileForm->fill([
-            'first_name' => $user->first_name,
-            'last_name' => $user->last_name,
+            'name' => $user->name,
             'email' => $user->email,
             'phone_number' => $user->phone_number,
             'profile_photo' => $user->profile_photo,
@@ -55,12 +54,8 @@ class Settings extends Page implements HasForms
                 ->schema([
                     Section::make('My Profile')
                         ->schema([
-                            Forms\Components\TextInput::make('first_name')
-                                ->label('First Name')
-                                ->required()
-                                ->maxLength(255),
-                            Forms\Components\TextInput::make('last_name')
-                                ->label('Last Name')
+                            Forms\Components\TextInput::make('name')
+                                ->label('Name')
                                 ->required()
                                 ->maxLength(255),
                             Forms\Components\TextInput::make('email')
@@ -90,6 +85,7 @@ class Settings extends Page implements HasForms
             'passwordForm' => $this->makeForm()
                 ->schema([
                     Section::make('Change Password')
+                        ->extraAttributes(['class' => 'mt-6 md:mt-8'])
                         ->schema([
                             Forms\Components\TextInput::make('current_password')
                                 ->password()
@@ -121,12 +117,8 @@ class Settings extends Page implements HasForms
         $user = auth()->user();
         $data = $this->profileForm->getState();
 
-        $fullName = trim(($data['first_name'] ?? '') . ' ' . ($data['last_name'] ?? ''));
-
         $user->fill([
-            'first_name' => $data['first_name'],
-            'last_name' => $data['last_name'],
-            'name' => $fullName !== '' ? $fullName : $user->name,
+            'name' => $data['name'] ?? $user->name,
             'email' => $data['email'],
             'phone_number' => $data['phone_number'],
             'profile_photo' => $data['profile_photo'],
@@ -170,9 +162,8 @@ class Settings extends Page implements HasForms
             ->send();
     }
 
-    public static function shouldRegisterNavigation(): bool
-    {
-        // Only show for authenticated users; you can restrict to admins if desired
-        return Auth::check();
-    }
+    // public static function shouldRegisterNavigation(): bool
+    // {
+    //     return false; // hidden from navigation as requested
+    // }
 }

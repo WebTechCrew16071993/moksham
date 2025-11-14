@@ -3,11 +3,12 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ShipmentResource\Pages;
-use App\Filament\Resources\ShipmentResource\RelationManagers\CertificatesRelationManager;
 use App\Filament\Resources\ShipmentResource\RelationManagers\InvoicesRelationManager;
 use App\Filament\Resources\ShipmentResource\RelationManagers\PackingListsRelationManager;
+use App\Filament\Resources\ShipmentResource\RelationManagers\BlCorrectionsRelationManager;
 use App\Models\Indent;
 use App\Models\Shipment;
+use App\Services\DocumentPermissionService;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -25,6 +26,8 @@ class ShipmentResource extends Resource
     protected static ?string $navigationLabel = 'Shipments';
 
     protected static ?int $navigationSort = 20;
+
+    protected static string $permissionResource = 'shipments';
 
     public static function getModelLabel(): string
     {
@@ -138,8 +141,8 @@ class ShipmentResource extends Resource
     {
         return [
             PackingListsRelationManager::class,
+            BlCorrectionsRelationManager::class,
             InvoicesRelationManager::class,
-            CertificatesRelationManager::class,
         ];
     }
 
@@ -150,5 +153,30 @@ class ShipmentResource extends Resource
             'create' => Pages\CreateShipment::route('/create'),
             'edit' => Pages\EditShipment::route('/{record}/edit'),
         ];
+    }
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        return DocumentPermissionService::canView(static::$permissionResource);
+    }
+
+    public static function canViewAny(): bool
+    {
+        return DocumentPermissionService::canView(static::$permissionResource);
+    }
+
+    public static function canCreate(): bool
+    {
+        return DocumentPermissionService::canCreate(static::$permissionResource);
+    }
+
+    public static function canEdit($record): bool
+    {
+        return DocumentPermissionService::canUpdate(static::$permissionResource);
+    }
+
+    public static function canDelete($record): bool
+    {
+        return DocumentPermissionService::canDelete(static::$permissionResource);
     }
 }

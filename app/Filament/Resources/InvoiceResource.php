@@ -7,6 +7,7 @@ use App\Models\ImportCompany;
 use App\Models\Invoice;
 use App\Models\Shipment;
 use App\Models\BlCorrection;
+use App\Services\DocumentPermissionService;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
@@ -26,6 +27,8 @@ class InvoiceResource extends Resource
     protected static ?string $navigationLabel = 'Invoices';
 
     protected static ?int $navigationSort = 22;
+
+    protected static string $permissionResource = 'invoices';
 
     public static function form(Form $form): Form
     {
@@ -225,11 +228,11 @@ class InvoiceResource extends Resource
                         $hasForm9 = \App\Models\Form9Document::query()->where('invoice_id', $record->getKey())->exists();
                         return !($hasForm6 || $hasForm9);
                     }),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+            // ])
+            // ->bulkActions([
+            //     Tables\Actions\BulkActionGroup::make([
+            //         Tables\Actions\DeleteBulkAction::make(),
+            //     ]),
             ]);
     }
 
@@ -240,5 +243,30 @@ class InvoiceResource extends Resource
             'create' => Pages\CreateInvoice::route('/create'),
             'edit' => Pages\EditInvoice::route('/{record}/edit'),
         ];
+    }
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        return DocumentPermissionService::canView(static::$permissionResource);
+    }
+
+    public static function canViewAny(): bool
+    {
+        return DocumentPermissionService::canView(static::$permissionResource);
+    }
+
+    public static function canCreate(): bool
+    {
+        return DocumentPermissionService::canCreate(static::$permissionResource);
+    }
+
+    public static function canEdit($record): bool
+    {
+        return DocumentPermissionService::canUpdate(static::$permissionResource);
+    }
+
+    public static function canDelete($record): bool
+    {
+        return DocumentPermissionService::canDelete(static::$permissionResource);
     }
 }

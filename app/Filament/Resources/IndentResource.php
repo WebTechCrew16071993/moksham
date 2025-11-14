@@ -6,6 +6,7 @@ use App\Filament\Resources\IndentResource\Pages;
 use App\Models\HsnCode;
 use App\Models\ImportCompany;
 use App\Models\Indent;
+use App\Services\DocumentPermissionService;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -27,6 +28,8 @@ class IndentResource extends Resource
     protected static ?string $navigationLabel = 'Indents';
 
     protected static ?int $navigationSort = 10;
+
+    protected static string $permissionResource = 'indents';
 
     public static function getModelLabel(): string
     {
@@ -295,6 +298,26 @@ class IndentResource extends Resource
 
     public static function shouldRegisterNavigation(): bool
     {
-        return true;
+        return DocumentPermissionService::canView(static::$permissionResource);
+    }
+
+    public static function canViewAny(): bool
+    {
+        return DocumentPermissionService::canView(static::$permissionResource);
+    }
+
+    public static function canCreate(): bool
+    {
+        return DocumentPermissionService::canCreate(static::$permissionResource);
+    }
+
+    public static function canEdit($record): bool
+    {
+        return DocumentPermissionService::canUpdate(static::$permissionResource);
+    }
+
+    public static function canDelete($record): bool
+    {
+        return DocumentPermissionService::canDelete(static::$permissionResource);
     }
 }

@@ -7,6 +7,7 @@ use App\Models\Form6Document;
 use App\Models\Shipment;
 use App\Models\BlCorrection;
 use App\Models\Invoice;
+use App\Services\DocumentPermissionService;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
@@ -24,6 +25,8 @@ class Form6DocumentResource extends Resource
     protected static ?string $navigationGroup = 'Documents';
     protected static ?string $navigationLabel = 'Form 6';
     protected static ?int $navigationSort = 23;
+
+    protected static string $permissionResource = 'form6';
 
     public static function form(Form $form): Form
     {
@@ -313,6 +316,31 @@ class Form6DocumentResource extends Resource
             'create' => Pages\CreateForm6Document::route('/create'),
             'edit' => Pages\EditForm6Document::route('/{record}/edit'),
         ];
+    }
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        return DocumentPermissionService::canView(static::$permissionResource);
+    }
+
+    public static function canViewAny(): bool
+    {
+        return DocumentPermissionService::canView(static::$permissionResource);
+    }
+
+    public static function canCreate(): bool
+    {
+        return DocumentPermissionService::canCreate(static::$permissionResource);
+    }
+
+    public static function canEdit($record): bool
+    {
+        return DocumentPermissionService::canUpdate(static::$permissionResource);
+    }
+
+    public static function canDelete($record): bool
+    {
+        return DocumentPermissionService::canDelete(static::$permissionResource);
     }
 
     public static function getRelations(): array

@@ -8,6 +8,7 @@ use App\Services\Form9Generator;
 use App\Models\Form6Document;
 use App\Models\Form9Document;
 use Illuminate\Support\Facades\Log;
+use App\Services\ActivityLogger;
 
 class InvoiceObserver
 {
@@ -20,6 +21,8 @@ class InvoiceObserver
         ]);
         
         $this->maybeGenerateForm6($invoice);
+
+        ActivityLogger::logModel('invoice.saved', $invoice, $invoice->user_id ?? null, (string) $invoice->invoice_no, null, 'Invoice saved');
     }
 
     protected function maybeGenerateForm6(Invoice $invoice): void

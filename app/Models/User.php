@@ -8,6 +8,7 @@ use Filament\Models\Contracts\FilamentUser;
 use Filament\Models\Contracts\HasAvatar;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 
 class User extends Authenticatable implements FilamentUser, HasAvatar
@@ -92,5 +93,10 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
         }
 
         return null;
+    }
+
+    public function documentPermissions(): HasMany
+    {
+        return $this->hasMany(DocumentPermission::class, 'user_id');
     }
 }

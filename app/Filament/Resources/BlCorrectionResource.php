@@ -7,6 +7,7 @@ use App\Models\BlCorrection;
 use App\Models\Shipment;
 use App\Models\PackingList;
 use App\Services\InvoiceGenerator;
+use App\Services\DocumentPermissionService;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Forms\Components\Repeater;
@@ -27,6 +28,8 @@ class BlCorrectionResource extends Resource
     protected static ?string $navigationGroup = 'Documents';
     protected static ?string $navigationLabel = 'BLs';
     protected static ?int $navigationSort = 22;
+
+    protected static string $permissionResource = 'bls';
 
     public static function form(Form $form): Form
     {
@@ -333,5 +336,30 @@ class BlCorrectionResource extends Resource
             'create' => Pages\CreateBlCorrection::route('/create'),
             'edit' => Pages\EditBlCorrection::route('/{record}/edit'),
         ];
+    }
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        return DocumentPermissionService::canView(static::$permissionResource);
+    }
+
+    public static function canViewAny(): bool
+    {
+        return DocumentPermissionService::canView(static::$permissionResource);
+    }
+
+    public static function canCreate(): bool
+    {
+        return DocumentPermissionService::canCreate(static::$permissionResource);
+    }
+
+    public static function canEdit($record): bool
+    {
+        return DocumentPermissionService::canUpdate(static::$permissionResource);
+    }
+
+    public static function canDelete($record): bool
+    {
+        return DocumentPermissionService::canDelete(static::$permissionResource);
     }
 }
