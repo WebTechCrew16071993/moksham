@@ -29,6 +29,7 @@ class AdminPanelProvider extends PanelProvider
             ->brandName('Moksham')
             ->brandLogo(asset('images/moksham-logo.png'))
             ->brandLogoHeight('48px')
+            ->favicon(asset('images/favicon.png'))
             ->login()
             ->colors([
                 'primary' => Color::Amber,

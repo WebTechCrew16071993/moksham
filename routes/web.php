@@ -9,8 +9,11 @@ use App\Http\Controllers\BlCorrectionPrintController;
 use App\Http\Controllers\Form6PrintController;
 use App\Http\Controllers\Form9PrintController;
 
+// Route::get('/', function () {
+//     return view('welcome');
+// });
 Route::get('/', function () {
-    return view('welcome');
+    return redirect()->route('filament.admin.pages.dashboard');
 });
 
 // Indent printable view/PDF

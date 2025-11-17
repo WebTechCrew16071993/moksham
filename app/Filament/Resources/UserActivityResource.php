@@ -7,6 +7,7 @@ use App\Models\UserActivity;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Filament\Facades\Filament;
 use Illuminate\Support\Facades\Auth;
 
 class UserActivityResource extends Resource
@@ -44,6 +45,9 @@ class UserActivityResource extends Resource
                         }
                         $id = $record->subject_id ?? null;
                         return $id ? ($label . ' #' . $id) : $label;
+                    })
+                    ->url(function ($record) {
+                        return self::resolveSubjectUrl($record);
                     })
                     ->sortable(),
                 // Tables\Columns\TextColumn::make('changes')
@@ -126,5 +130,26 @@ class UserActivityResource extends Resource
     public static function canViewAny(): bool
     {
         return Auth::user()?->isAdmin() ?? false;
+    }
+
+    protected static function resolveSubjectUrl(UserActivity $record): ?string
+    {
+        $action = $record->action ?? '';
+        if (str_starts_with((string) $action, 'permissions')) {
+            return null;
+        }
+
+        $modelClass = $record->subject_type ?? null;
+        $id = $record->subject_id ?? null;
+        if (!$modelClass || !$id) {
+            return null;
+        }
+
+        $resource = Filament::getModelResource($modelClass);
+        if (!$resource) {
+            return null;
+        }
+
+        return $resource::getUrl('edit', ['record' => $id]);
     }
 }
