@@ -8,6 +8,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Facades\Filament;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 
 class UserActivityResource extends Resource
@@ -88,6 +89,12 @@ class UserActivityResource extends Resource
                 Tables\Columns\TextColumn::make('created_at')->dateTime()->label('When')->sortable(),
             ])
             ->filters([])
+            ->modifyQueryUsing(function (Builder $query) {
+                // Show only activities performed by users (exclude admin actors)
+                $query->whereHas('actor', function ($q) {
+                    $q->where('role', 'user');
+                });
+            })
             // ->actions([
             //     Tables\Actions\Action::make('view')
             //         ->label('View')
