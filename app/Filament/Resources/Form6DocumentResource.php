@@ -39,11 +39,11 @@ class Form6DocumentResource extends Resource
                 Forms\Components\Select::make('invoice_id')
                     ->label('Invoice')
                     ->options(fn()=> Invoice::query()->latest('id')->pluck('invoice_no','id'))
-                    ->searchable()->preload()->native(false)->columnSpan(4),
+                    ->searchable()->preload()->native(false)->required()->columnSpan(4),
                 Forms\Components\Select::make('bl_correction_id')
                     ->label('BL')
                     ->options(fn()=> BlCorrection::query()->latest('id')->pluck('id','id'))
-                    ->searchable()->preload()->native(false)->columnSpan(4),
+                    ->searchable()->preload()->native(false)->required()->columnSpan(4),
                 Forms\Components\TextInput::make('form6_no')->required()->columnSpan(4),
                 Forms\Components\DatePicker::make('form6_date')->native(false)->required()->columnSpan(4),
                 Forms\Components\TextInput::make('applicant_ref_no')->columnSpan(4),
@@ -57,6 +57,7 @@ class Form6DocumentResource extends Resource
                         'completed' => 'Completed',
                     ])
                     ->native(false)
+                    ->required()
                     ->reactive()
                     ->columnSpan(4),
                 Forms\Components\FileUpload::make('pdf_path')
@@ -128,7 +129,13 @@ class Form6DocumentResource extends Resource
                 Forms\Components\TextInput::make('itc_hs')->default('4707.90')->columnSpan(4),
                 Forms\Components\TextInput::make('customs_code_hs')->default('47079000')->columnSpan(4),
                 Forms\Components\TextInput::make('package_type')->default('BALES')->columnSpan(4),
-                Forms\Components\TextInput::make('package_number')->numeric()->columnSpan(4),
+                Forms\Components\TextInput::make('package_number')
+                    ->numeric()
+                    ->required()
+                    ->minValue(1)
+                    ->default(0)
+                    ->dehydrateStateUsing(fn($state) => $state === null || $state === '' ? 0 : $state)
+                    ->columnSpan(4),
                 Forms\Components\Select::make('movement_type')
                     ->label('Movement subject to single / multiple consignment')
                     ->options(['single' => 'Single', 'multiple' => 'Multiple'])
@@ -164,8 +171,15 @@ class Form6DocumentResource extends Resource
             Forms\Components\Section::make("13. Exporter's declaration")->schema([
                 Forms\Components\Textarea::make('exporter_declaration')->rows(3)->columnSpanFull(),
                 Forms\Components\Group::make()->columns(12)->schema([
-                    Forms\Components\TextInput::make('exporter_signature_name')->label('Signature / Name')->columnSpan(6),
-                    Forms\Components\DatePicker::make('exporter_signature_date')->label('Date')->native(false)->columnSpan(6),
+                    Forms\Components\TextInput::make('exporter_signature_name')
+                        ->label('Signature / Name')
+                        ->required(fn(Get $get) => in_array($get('status'), ['submitted','in_transit','received','completed']))
+                        ->columnSpan(6),
+                    Forms\Components\DatePicker::make('exporter_signature_date')
+                        ->label('Date')
+                        ->native(false)
+                        ->required(fn(Get $get) => in_array($get('status'), ['submitted','in_transit','received','completed']))
+                        ->columnSpan(6),
                     Forms\Components\FileUpload::make('exporter_signature_image_path')
                         ->label('Signature image (exporter)')
                         ->image()->imageEditor(false)

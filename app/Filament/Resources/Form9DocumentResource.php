@@ -48,6 +48,7 @@ class Form9DocumentResource extends Resource
                             Forms\Components\Textarea::make('exporter_name_address')
                                 ->label('Name & Address')
                                 ->rows(4)
+                                ->required()
                                 ->columnSpan(1),
                             Forms\Components\Group::make()
                                 ->columnSpan(1)
@@ -68,13 +69,15 @@ class Form9DocumentResource extends Resource
                         ->schema([
                             Forms\Components\Textarea::make('generator_name_address')
                                 ->label('Name & Address')
+                                ->required()
                                 ->rows(4)
                                 ->columnSpan(1),
                             Forms\Components\Group::make()
                                 ->columnSpan(1)
                                 ->schema([
                                     Forms\Components\TextInput::make('generator_contact_person')
-                                        ->label('Contact Person'),
+                                    ->required()    
+                                    ->label('Contact Person'),
                                     Forms\Components\TextInput::make('generator_phone')
                                         ->label('Phone')
                                         ->tel(),
@@ -91,6 +94,7 @@ class Form9DocumentResource extends Resource
                         ->schema([
                             Forms\Components\Select::make('status')
                                 ->label('Status')
+                                ->required()
                                 ->options([
                                     'draft' => 'Draft',
                                     'submitted' => 'Submitted',
@@ -128,11 +132,13 @@ class Form9DocumentResource extends Resource
                             Forms\Components\Textarea::make('importer_name_address')
                                 ->label('Name & Address')
                                 ->rows(4)
+                                ->required()
                                 ->columnSpan(1),
                             Forms\Components\Group::make()
                                 ->columnSpan(1)
                                 ->schema([
                                     Forms\Components\TextInput::make('importer_contact_person')
+                                        ->required()    
                                         ->label('Contact Person'),
                                     Forms\Components\TextInput::make('importer_phone')
                                         ->label('Phone')
@@ -149,14 +155,19 @@ class Form9DocumentResource extends Resource
                             Forms\Components\Textarea::make('disposer_name_address')
                                 ->label('Name & Address')
                                 ->rows(4)
+                                ->required()
                                 ->columnSpan(1),
                             Forms\Components\TextInput::make('disposer_contact_person')
                                 ->label('Contact Person')
                                 ->columnSpan(1),
                             Forms\Components\Textarea::make('actual_site_of_disposal')
                                 ->label('Actual Site of Disposal')
-                                ->rows(3)
-                                ->columnSpanFull(),
+                                ->rows(rows: 3)
+                                ->columnSpan(1),
+                            Forms\Components\TextInput::make('disposer_phone')
+                                ->label('Telephone / Fax')
+                                ->tel()
+                                ->columnSpan(1),
                         ]),
                 ]),
                 
@@ -179,11 +190,13 @@ class Form9DocumentResource extends Resource
                                 ->label('Invoice')
                                 ->options(fn()=> Invoice::query()->latest('id')->pluck('invoice_no','id'))
                                 ->searchable()
+                                ->required()
                                 ->preload()
                                 ->native(false)
                                 ->columnSpan(1),
                             Forms\Components\Select::make('bl_correction_id')
                                 ->label('BL')
+                                ->required()
                                 ->options(fn()=> BlCorrection::query()->latest('id')->pluck('id','id'))
                                 ->searchable()
                                 ->preload()
@@ -208,6 +221,7 @@ class Form9DocumentResource extends Resource
                                 ->columnSpan(1),
                             Forms\Components\TextInput::make('applicant_ref_no')
                                 ->label('Applicant Reference No')
+                                ->required()
                                 ->columnSpan(1),
                         ]),
                     Forms\Components\Select::make('movement_type')
@@ -293,12 +307,14 @@ class Form9DocumentResource extends Resource
                         ->schema([
                             Forms\Components\TextInput::make('method_of_recovery')
                                 ->label('7. Method(s) of Recovery')
+                                ->required()
                                 ->columnSpan(2),
                             Forms\Components\TextInput::make('r_code')
                                 ->label('R Code')
                                 ->columnSpan(1),
                             Forms\Components\TextInput::make('technology_employed')
                                 ->label('Technology Employed')
+                                ->required()
                                 ->columnSpanFull(),
                         ]),
                     Forms\Components\Section::make('Waste Details')
@@ -310,9 +326,11 @@ class Form9DocumentResource extends Resource
                             Forms\Components\TextInput::make('physical_characteristics')
                                 ->label('9. Physical Characteristics')
                                 ->default('Solid')
+                                ->required()
                                 ->columnSpan(1),
                             Forms\Components\TextInput::make('actual_quantity_kgs')
                                 ->label('10. Actual Quantity (Kg/Lt)')
+                                ->required()
                                 ->numeric()
                                 ->columnSpan(1),
                             Forms\Components\TextInput::make('waste_description')
@@ -402,6 +420,8 @@ class Form9DocumentResource extends Resource
                             Forms\Components\TextInput::make('packaging_number')
                                 ->label('13. Number of Packages')
                                 ->numeric()
+                                ->required()
+                                ->minValue(1)
                                 ->columnSpan(1),
                         ]),
                 ]),
@@ -474,6 +494,7 @@ class Form9DocumentResource extends Resource
                                 ->columnSpanFull(),
                             Forms\Components\DatePicker::make('actual_shipment_date')
                                 ->label('16. Actual Date of Shipment')
+                                ->required()
                                 ->native(false)
                                 ->columnSpan(1),
                         ]),
@@ -496,10 +517,12 @@ class Form9DocumentResource extends Resource
                                 ->schema([
                                     Forms\Components\TextInput::make('exporter_signature_name')
                                         ->label('Signature / Name')
+                                        ->required()
                                         ->columnSpan(1),
                                     Forms\Components\DatePicker::make('exporter_declaration_date')
                                         ->label('Declaration Date')
                                         ->native(false)
+                                        ->required()
                                         ->columnSpan(1),
                                     Forms\Components\FileUpload::make('exporter_signature_image_path')
                                         ->label('Signature Image')
