@@ -38,6 +38,19 @@ class InvoiceObserver
                 $gen9 = app(Form9Generator::class);
                 $doc9 = $gen9->generateOrUpdateForInvoice($invoice);
                 Log::info('InvoiceObserver: Form9 synced', ['invoice_id' => $invoice->getKey(), 'form9_id' => $doc9->getKey()]);
+
+                // New: Auto-create Documentary Collection Letter, Bill of Exchange, Self-Declaration
+                $dclGen = app(\App\Services\DocumentaryCollectionLetterGenerator::class);
+                $dcl = $dclGen->generateOrUpdateForInvoice($invoice);
+                Log::info('InvoiceObserver: DCL synced', ['invoice_id' => $invoice->getKey(), 'dcl_id' => $dcl->getKey()]);
+
+                $boeGen = app(\App\Services\BillOfExchangeGenerator::class);
+                $boe = $boeGen->generateOrUpdateForInvoice($invoice);
+                Log::info('InvoiceObserver: BOE synced', ['invoice_id' => $invoice->getKey(), 'boe_id' => $boe->getKey()]);
+
+                $sdGen = app(\App\Services\SelfDeclarationGenerator::class);
+                $sd = $sdGen->generateOrUpdateForInvoice($invoice);
+                Log::info('InvoiceObserver: SelfDeclaration synced', ['invoice_id' => $invoice->getKey(), 'self_declaration_id' => $sd->getKey()]);
             }
         } catch (\Throwable $e) {
             Log::error('InvoiceObserver: sync failed', [

@@ -8,6 +8,9 @@ use App\Http\Controllers\CertificatePrintController;
 use App\Http\Controllers\BlCorrectionPrintController;
 use App\Http\Controllers\Form6PrintController;
 use App\Http\Controllers\Form9PrintController;
+use App\Http\Controllers\DocumentaryCollectionLetterPrintController;
+use App\Http\Controllers\BillOfExchangePrintController;
+use App\Http\Controllers\SelfDeclarationPrintController;
 
 // Route::get('/', function () {
 //     return view('welcome');
@@ -51,4 +54,16 @@ Route::get('/form6/{form6}/pdf', [Form6PrintController::class, 'pdf'])->name('fo
 // Form 9 printable view/PDF
 Route::get('/form9/{form9}/print', [Form9PrintController::class, 'show'])->name('form9.print');
 Route::get('/form9/{form9}/pdf', [Form9PrintController::class, 'pdf'])->name('form9.pdf');
+
+// Documentary Collection Letter printable view/PDF
+Route::get('/dcl/{letter}/print', [DocumentaryCollectionLetterPrintController::class, 'show'])->name('dcl.print');
+Route::get('/dcl/{letter}/pdf', [DocumentaryCollectionLetterPrintController::class, 'pdf'])->name('dcl.pdf');
+
+// Bill of Exchange printable view/PDF
+Route::get('/boe/{boe}/print', [BillOfExchangePrintController::class, 'show'])->name('boe.print');
+Route::get('/boe/{boe}/pdf', [BillOfExchangePrintController::class, 'pdf'])->name('boe.pdf');
+
+// Self-Declaration printable view/PDF
+Route::get('/self-declaration/{doc}/print', [SelfDeclarationPrintController::class, 'show'])->name('self_declaration.print');
+Route::get('/self-declaration/{doc}/pdf', [SelfDeclarationPrintController::class, 'pdf'])->name('self_declaration.pdf');
 

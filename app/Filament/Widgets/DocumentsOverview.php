@@ -9,6 +9,9 @@ use App\Filament\Resources\InvoiceResource;
 use App\Filament\Resources\BlCorrectionResource;
 use App\Filament\Resources\Form6DocumentResource;
 use App\Filament\Resources\Form9DocumentResource;
+use App\Filament\Resources\BillOfExchangeResource;
+use App\Filament\Resources\DocumentaryCollectionLetterResource;
+use App\Filament\Resources\SelfDeclarationResource;
 use App\Models\Indent;
 use App\Models\PackingList;
 use App\Models\CertificateOfOrigin;
@@ -16,6 +19,9 @@ use App\Models\Invoice;
 use App\Models\BlCorrection;
 use App\Models\Form6Document;
 use App\Models\Form9Document;
+use App\Models\BillOfExchange;
+use App\Models\DocumentaryCollectionLetter;
+use App\Models\SelfDeclaration;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Card;
 
@@ -34,8 +40,11 @@ class DocumentsOverview extends BaseWidget
         $form9 = $this->getForm9Count();
         $invoices = $this->getInvoicesCount();
         $bls = $this->getBlCount();
+        $dcl = $this->getDclFinalizedCount();
+        $boe = $this->getBoeFinalizedCount();
+        $sdec = $this->getSelfDeclarationFinalizedCount();
 
-        $total = $intentList  + $packagingList + $bls + $form6 + $form9 + $invoices;
+        $total = $intentList  + $packagingList + $bls + $form6 + $form9 + $invoices + $dcl + $boe + $sdec;
         // $total = $intentList  + $packagingList + $cca + $psic + $cco + $form6 + $form9 + $invoices;
 
         return [
@@ -99,6 +108,24 @@ class DocumentsOverview extends BaseWidget
                 ->icon('heroicon-o-document')
                 ->url(Form9DocumentResource::getUrl('index'))
                 ->extraAttributes(['wire:navigate' => true]),
+            Card::make('DCL (Finalized)', (string) $dcl)
+                ->color('info')
+                ->icon('heroicon-o-document-magnifying-glass')
+                ->url(DocumentaryCollectionLetterResource::getUrl('index'))
+                ->extraAttributes(['wire:navigate' => true]),
+
+            Card::make('BOE (Finalized)', (string) $boe)
+                ->color('info')
+                ->icon('heroicon-o-document')
+                ->url(BillOfExchangeResource::getUrl('index'))
+                ->extraAttributes(['wire:navigate' => true]),
+
+
+            Card::make('Self-Declaration (Finalized)', (string) $sdec)
+                ->color('info')
+                ->icon('heroicon-o-document-check')
+                ->url(SelfDeclarationResource::getUrl('index'))
+                ->extraAttributes(['wire:navigate' => true]),
 
         ];
     }
@@ -131,5 +158,16 @@ class DocumentsOverview extends BaseWidget
     }
     protected function getInvoicesCount(): int {
         return Invoice::query()->where(function($q){ $q->whereNull('status')->orWhere('status','!=','draft'); })->count();
+    }
+
+    // Finalized-only counters for three additional documents
+    protected function getBoeFinalizedCount(): int {
+        return BillOfExchange::query()->where('status', 'finalized')->count();
+    }
+    protected function getDclFinalizedCount(): int {
+        return DocumentaryCollectionLetter::query()->where('status', 'finalized')->count();
+    }
+    protected function getSelfDeclarationFinalizedCount(): int {
+        return SelfDeclaration::query()->where('status', 'finalized')->count();
     }
 }
