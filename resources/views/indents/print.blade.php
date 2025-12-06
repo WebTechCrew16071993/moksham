@@ -4,158 +4,308 @@
     <meta charset="utf-8"/>
     <title>Indent #{{ $indent->indent_no }}</title>
     <style>
-        @page { margin: 120px 30px 80px 30px; }
-        body { font-family: DejaVu Sans, Arial, sans-serif; font-size: 12px; }
-        header { position: fixed; top: -90px; left: 0; right: 0; height: 90px; text-align: center; }
-        footer { position: fixed; bottom: -60px; left: 0; right: 0; height: 60px; text-align: center; font-size: 11px; color: #333; }
-        .brand { display: flex; align-items: center; justify-content: center; gap: 12px; }
-        .brand img { height: 46px; }
-        .brand-name { font-weight: bold; font-size: 16px; }
-        .grid { width: 100%; border-collapse: collapse; }
-        .grid th, .grid td { border: 1px solid #333; padding: 6px; vertical-align: top; }
-        .section-title { font-weight: bold; margin-top: 12px; }
+        @page {
+            size: A4;
+            margin: 100px 60px 100px 60px;
+        }
+        body {
+            font-family: "Times New Roman", Times, serif;
+            font-size: 12px !important; /* Set default font size to 12px */
+            line-height: 1.15;
+        }
+        
+        /* Header & Footer Positioning */
+        header {
+            position: fixed;
+            top: -80px;
+            left: 0;
+            right: 0;
+            height: 90px;
+            text-align: center;
+        }
+        footer {
+            position: fixed;
+            bottom: -130px;
+            left: -60px;
+            width: calc(100% + 120px);
+            right: 0;
+            height: 90px;
+            text-align: center;
+            font-size: 12px;
+            padding-bottom: 5px;
+        }
+
+        /* Helper Classes */
+        .font-bold { font-weight: bold; }
+        .uppercase { text-transform: uppercase; }
+        .text-red { color: #c00; }
+
+        .text-red-in b, .text-red-in strong { color: #c00; }
+        .underline { text-decoration: underline; }
+        
+        /* Main Grid Table */
+        table.grid {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 5px;
+            font-size: 12px !important;
+        }
+        table.grid > tbody > tr > th,
+        table.grid > tbody > tr > td {
+            border: 1px solid #000;
+            padding: 5px 8px; /* Adjusted padding for tighter look */
+            vertical-align: top;
+            text-align: left;
+        }
+        
+        /* Column Widths for the main data section */
+        .col-label { width: 30%; } /* Adjusted to match image proportion */
+        .col-value { width: 70%; }
+
+        /* Nested Tables for Split Rows (Shipper/Consignee) 
+           This ensures the vertical divider is exactly in the middle (50%) 
+           regardless of the top section's column width. */
+        table.nested {
+            width: 100%;
+            border-collapse: collapse;
+            margin: -6px -9px; /* Negative margin to fill the parent cell perfectly */
+            width: calc(100% + 18px);
+        }
+        table.nested td {
+            border: none;
+            border-right: 1px solid #000;
+            padding: 5px 8px;
+            vertical-align: top;
+            width: 50%;
+        }
+        table.nested td:last-child {
+            border-right: none;
+        }
+
+        /* Section Titles */
+        .section-title {
+            font-weight: bold;
+            margin-top: 15px;
+            margin-bottom: 5px;
+            font-size: 12px !important;
+            text-decoration: underline;
+        }
+        
+        /* Page Numbers */
         .pagenum:before { content: counter(page); }
-        .pagecount:before { content: counter(pages); }
+        
+        /* Signature Table */
+        .signature-table { width: 100%; margin-top: 40px; border: none; }
+        .signature-table td { border: none; vertical-align: bottom; }
+
+        .inner-m0 > * {
+            margin: 0 !important;
+            margin-top: 2px !important;
+            width: 100% !important;
+        }
     </style>
 </head>
 <body>
+
 <header>
-    <div class="brand">
-        <img src="{{ public_path('images/moksham-logo.png') }}" alt="Moksham Logo">
-        <div class="brand-name">{{ $setting?->company_name }}</div>
+    <div>
+        <img src="{{ public_path('images/moksham-logo.png') }}" alt="Moksham Logo" style="height: 55px;">
     </div>
 </header>
 
-<footer>
-    <div>{{ \App\Support\CompanyHelper::fullAddress($setting) }}</div>
-    <div style="margin-top:4px;">(Page <span class="pagenum"></span>)</div>
-    </footer>
 
-<table class="grid">
+
+<div class="content">
     
- 
-            <div>Indent No.: <strong>{{ $indent->indent_no }}</strong></div>
-            <div>Date: <strong>{{ optional($indent->indent_date)->format('m/d/Y') }}</strong></div>
-            <div class="mt-3">
+    <div style="margin-bottom: 15px;">
+        <div style="margin-bottom: 3px;">Indent No.: {{ $indent->indent_no }}</div>
+        <div>Date: {{ optional($indent->indent_date)->format('m/d/Y') }}</div>
+    </div>
 
-                <div><strong>To,</strong></div>
-                <div style="margin-top:4px"><strong>{{ strtoupper($indent->consignee_name) }}</strong></div>
-                <div>{{ $indent->consignee_address }}</div>
-                <div>{{ $indent->consignee_city }}, {{ $indent->consignee_state }} {{ $indent->consignee_zip }}, {{ $indent->consignee_country }}.</div>
-            </div>
+    <div style="margin-bottom: 15px;">
+        <div>To,</div>
+        <div class="font-bold uppercase" style="margin-top: 2px;">{{ $indent->consignee_name }}</div>
+        <div>{{ $indent->consignee_address }},</div>
+        <div>{{ $indent->consignee_city }}, {{ $indent->consignee_state }},</div>
+        <div>{{ $indent->consignee_country }}, {{ $indent->consignee_zip }}.</div>
+    </div>
 
-    <div>Kind Attn.: <strong>{{ $indent->kind_attention }}</strong></div>
-</table>
+    <div class="font-bold" style="margin-bottom: 15px;">
+        Kind Attn. : <span class="font-bold">{{ $indent->kind_attention }}</span>
+    </div>
 
-<p>Dear Sir,</p>
-<p>
-    Reference to our discussion and confirmation did {{ optional($indent->indent_date)->format('m/d/Y') }},
-    we are pleased to confirm below order for M/s, <strong>{{ $indent->consignee_name }}</strong>,
-    {{ $indent->consignee_city }}, {{ $indent->consignee_state }}, {{ $indent->consignee_country }}.
+    <p style="text-align: justify; margin-top: 0;">
+        Dear Sir, <br />
+        Reference to our discussion and confirmation did {{ optional($indent->indent_date)->format('m/d/Y') }},
+        we are pleased to confirm below order <br /> for M/s, <strong>{{ $indent->consignee_name }}</strong>,
+        {{ $indent->consignee_city }}, {{ $indent->consignee_state }}, {{ $indent->consignee_country }}.
     </p>
 
+    <table class="grid">
+        <tr>
+            <td class="col-label">Quality</td>
+            <td class="col-value">
+                <div class="font-bold">{{ $indent->quality }}</div>
+                <div>HS Code: {{ $indent->hsn_code }}</div>
+            </td>
+        </tr>
+        <tr>
+            <td class="col-label">Origin</td>
+            <td class="col-value" style="text-transform: uppercase;">{{ $indent->origin }}</td>
+        </tr>
+        <tr>
+            <td class="col-label">Quantity</td>
+            <td class="col-value font-bold">{{ $indent->quantity }}</td>
+        </tr>
+        <tr>
+            <td class="col-label">Moisture & Throw</td>
+            <td class="col-value">{{ $indent->moisture_and_throw }}</td>
+        </tr>
+        <tr>
+            <td class="col-label">Price</td>
+            <td class="col-value font-bold">{{ $indent->price }}</td>
+        </tr>
+        <tr>
+            <td class="col-label">Payment</td>
+            <td class="col-value">{{ $indent->payment }}</td>
+        </tr>
+        <tr>
+            <td class="col-label">Shipment Schedule</td>
+            <td class="col-value">{{ $indent->shipment_schedule }}</td>
+        </tr>
+        <tr>
+            <td class="col-label">Payload</td>
+            <td class="col-value">{{ $indent->payload }}</td>
+        </tr>
+        <tr>
+            <td class="col-label">Shipping line</td>
+            <td class="col-value">{{ $indent->shipping_line }}</td>
+        </tr>
+        <tr>
+            <td class="col-label">Discharge port</td>
+            <td class="col-value">{{ $indent->discharge_port }}</td>
+        </tr>
+        <tr>
+            <td class="col-label">Final destination</td>
+            <td class="col-value">{{ $indent->final_destination }}</td>
+        </tr>
+        
+        <tr>
+            <td>
+                <div class="underline font-bold" style="margin-bottom: 2px;">Shipper</div>
+                <div class="uppercase">{{ $indent->shipper_name }}</div>
+                <div>{{ $indent->shipper_address }}</div>
+                <div>{{ $indent->shipper_city }} {{ $indent->shipper_zip }} {{ $indent->shipper_country }}.</div>
+            </td>
+            <td>
+                <div class="underline font-bold" style="margin-bottom: 2px;">Consignee / Invoice</div>
+                <div class="font-bold uppercase">{{ $indent->consignee_name }}</div>
+                <div>{{ $indent->consignee_address }},</div>
+                <div>{{ $indent->consignee_city }}, {{ $indent->consignee_state }}, {{ $indent->consignee_country }},</div>
+                <div>{{ $indent->consignee_zip }}, INDIA.</div>
+                
+                @if($indent->consignee_iec)
+                    <div>IEC: {{ $indent->consignee_iec }}</div>
+                @endif
+                @if($indent->consignee_gstin)
+                    <div>GSTIN : {{ $indent->consignee_gstin }}</div>
+                @endif
+                @if($indent->consignee_pan)
+                    <div>PAN No. : {{ $indent->consignee_pan }}</div>
+                @endif
+                @if($indent->consignee_email)
+                    <div>E-mail : {{ $indent->consignee_email }}</div>
+                @endif
+            </td>
+        </tr>
 
-<table class="grid" style="margin-top:10px;">
-    <tr><th>Quality</th><td>{{ $indent->quality }}<br/>HS Code: <strong>{{ $indent->hsn_code }}</strong></td></tr>
-    <tr><th>Origin</th><td>{{ $indent->origin }}</td></tr>
-    <tr><th>Quantity</th><td>{{ $indent->quantity }}</td></tr>
-    <tr><th>Moisture & Throw</th><td>{{ $indent->moisture_and_throw }}</td></tr>
-    <tr><th>Price</th><td>{{ $indent->price }}</td></tr>
-    <tr><th>Payment</th><td>{{ $indent->payment }}</td></tr>
-    <tr><th>Shipment Schedule</th><td>{{ $indent->shipment_schedule }}</td></tr>
-    <tr><th>Payload</th><td>{{ $indent->payload }}</td></tr>
-    <tr><th>Shipping line</th><td>{{ $indent->shipping_line }}</td></tr>
-    <tr><th>Discharge port</th><td>{{ $indent->discharge_port }}</td></tr>
-    <tr><th>Final destination</th><td>{{ $indent->final_destination }}</td></tr>
-    <tr>
-        <td>
-            <div><strong style="text-decoration: underline;">Shipper</strong></div>
-            <div><strong>{{ strtoupper($indent->shipper_name) }}</strong></div>
-            <div>{{ $indent->shipper_address }}</div>
-            <div>{{ $indent->shipper_city }}, {{ $indent->shipper_state }} {{ $indent->shipper_zip }}, {{ $indent->shipper_country }}</div>
-            <div>Email: {{ $indent->shipper_email }} | Phone: {{ $indent->shipper_phone }}</div>
-        </td>
-        <td>
-            <div><strong style="text-decoration: underline;">Consignee / Invoice</strong></div>
-            <div><strong>{{ strtoupper($indent->consignee_name) }}</strong></div>
-            <div>{{ $indent->consignee_address }}</div>
-            <div>{{ $indent->consignee_city }}, {{ $indent->consignee_state }} {{ $indent->consignee_zip }}, {{ $indent->consignee_country }}</div>
-            @if($indent->consignee_iec)
-                <div>IEC: {{ $indent->consignee_iec }}</div>
-            @endif
-            @if($indent->consignee_gstin)
-                <div>GSTIN : {{ $indent->consignee_gstin }}</div>
-            @endif
-            @if($indent->consignee_pan)
-                <div>PAN No. : {{ $indent->consignee_pan }}</div>
-            @endif
-            @if($indent->consignee_email)
-                <div>E-mail : {{ $indent->consignee_email }}</div>
-            @endif
-        </td>
-    </tr>
-    <tr>
-        <td style="width:50%;">
-            <div><strong style="text-decoration: underline;">Shipping Bank</strong></div>
-            <div>{{ $indent->shipper_bank_name }}</div>
-            <div>{{ $indent->shipper_bank_address }}</div>
-            <div>{{ $indent->shipper_bank_city }}, {{ $indent->shipper_bank_state }} {{ $indent->shipper_bank_zip }}, {{ $indent->shipper_bank_country }}</div>
-            <div>A/C No.: {{ $indent->shipper_bank_account_number }}</div>
-            <div>SWIFT NO.: {{ $indent->shipper_bank_swift_code }}</div>
-            @if($indent->shipper_bank_routing_number)
-                <div>ROUTING NO.: {{ $indent->shipper_bank_routing_number }}</div>
-            @endif
-        </td>
-        <td style="width:50%;">
-            <div><strong style="text-decoration: underline;">Consignee Bank</strong></div>
-            <div>{{ $indent->consignee_bank_name }}</div>
-            <div>{{ $indent->consignee_bank_address }}</div>
-            <div>{{ $indent->consignee_bank_city }}, {{ $indent->consignee_bank_state }} {{ $indent->consignee_bank_zip }}, {{ $indent->consignee_bank_country }}</div>
-            <div>A/C No.: {{ $indent->consignee_bank_account_number }}</div>
-            <div>SWIFT : {{ $indent->consignee_bank_swift_code }}</div>
-            @if($indent->consignee_bank_ifsc_code)
-                <div>IFSC : {{ $indent->consignee_bank_ifsc_code }}</div>
-            @endif
-        </td>
-    </tr>
-    <tr><th>Release type of OBL</th><td><strong style="color:#c00;">{{ strtoupper($indent->release_type_of_obl) }}</strong></td></tr>
-</table>
+        <tr>
+            <td>
+                <div class="underline font-bold" style="margin-bottom: 2px;">Shipping Bank</div>
+                <div class="uppercase">{{ $indent->shipper_bank_name }}</div>
+                <div>{{ $indent->shipper_bank_address }}</div>
+                <div>{{ $indent->shipper_bank_city }}, {{ $indent->shipper_bank_state }} {{ $indent->shipper_bank_zip }}.</div>
+                <div>A/C No. : {{ $indent->shipper_bank_account_number }}</div>
+                <div>SWIFT NO. : {{ $indent->shipper_bank_swift_code }}</div>
+                @if($indent->shipper_bank_routing_number)
+                    <div>ROUTING NO. : {{ $indent->shipper_bank_routing_number }}</div>
+                @endif
+            </td>
+            <td>
+                <div class="underline font-bold" style="margin-bottom: 2px;">Consignee Bank</div>
+                <div class="uppercase">{{ $indent->consignee_bank_name }}</div>
+                <div>{{ $indent->consignee_bank_address }}</div>
+                <div>{{ $indent->consignee_bank_city }}, {{ $indent->consignee_bank_state }} - {{ $indent->consignee_bank_zip }}. {{ $indent->consignee_bank_country }}</div>
+                <div>A/C No. : {{ $indent->consignee_bank_account_number }}</div>
+                <div>SWIFT : {{ $indent->consignee_bank_swift_code }}</div>
+                @if($indent->consignee_bank_ifsc_code)
+                    <div>IFSC : {{ $indent->consignee_bank_ifsc_code }}</div>
+                @endif
+            </td>
+        </tr>
+        
+        <tr>
+            <td class="col-label font-bold">Release type of OBL</td>
+            <td class="col-value"><strong class="text-red">{{ strtoupper($indent->release_type_of_obl) }}</strong></td>
+        </tr>
+    </table>
 
+    <div style="margin-top: 10px; position: relative;">
+        <div style="margin:0;" class="font-bold">OTHER TERMS :</div>
+        <div class="text-red-in inner-m0" style="margin: 0px;">{!! $indent->other_terms !!}</div> 
+        <div style="text-align: right; margin-top: 10px;">(Page 01)</div>
+    </div>
 
+    <div style="page-break-before: always;"></div>
 
-<div style="page-break-before: always;"></div>
+    <div style="margin-top: 10px; margin-bottom: 20px; width: 100%;">
+        <div style="float: left; width: 100%;font-size: 14px !important;">This Agreement shall be governed by and construed in accordance with the laws of United States of America.</div>
+    </div>
+    <div style="text-align: right;margin-top: 10px;margin-bottom: 5px;">Date : {{ optional($indent->indent_date)->format('m/d/Y') }}</div>
 
-<div style="display:flex; justify-content:space-between; align-items:flex-start;">
-    <div style="font-weight:bold;">This Agreement shall be governed by and construed in accordance with the laws of United States of America.</div>
-    <div>Date : {{ optional($indent->indent_date)->format('m/d/Y') }}</div>
+    <div>
+        <div class="font-bold" style="margin-bottom: 2px;">Claim :</div>
+        <div class="inner-m0" style="margin-left: 0px;">{!! $indent->claims !!}</div>
+    </div>
+
+    <div style="margin-top: 15px;">
+        <div class="font-bold" style="margin: 0px;">Remarks :</div>
+        <div class="inner-m0" style="margin-left: 0px;">{!! $indent->remarks !!}</div>
+    </div>
+
+    <table class="signature-table">
+        <tr>
+            <td style="width: 50%; text-align: left;">
+                <div style="margin-bottom: 50px;">Thanking You Yours Sincerely,</div>
+                
+                @if($setting?->company_signed_logo)
+                    <div style="margin-bottom: 5px;">
+                        <img src="{{ public_path('storage/'.ltrim($setting->company_signed_logo, '/')) }}" alt="signature" height="60">
+                    </div>
+                @endif
+                <div style="border-top: 1px solid transparent;">Authorized Sign. of Indenter / Shipper</div>
+            </td>
+            <td style="width: 50%; text-align: right;">
+                @if($indent->consignee_signature_path)
+                    <div style="margin-bottom: 5px;">
+                        <img src="{{ public_path('storage/'.ltrim($indent->consignee_signature_path, '/')) }}" alt="consignee signature" height="60">
+                    </div>
+                @else
+                    <div style="height: 60px;"></div> @endif
+                <div style="float: right; width: auto;">Authorized Sign. of Consignee</div>
+            </td>
+        </tr>
+    </table>
+    
+    <div style="text-align: right; margin-top: 20px;">(Page 02)</div>
+
 </div>
 
-<h4 class="section-title">Other Terms :</h4>
-<div>{!! $indent->other_terms !!}</div>
-
-<h4 class="section-title">Claims :</h4>
-<div>{!! $indent->claims !!}</div>
-
-<h4 class="section-title">Remarks :</h4>
-<div>{!! $indent->remarks !!}</div>
-
-<div class="row" style="margin-top:40px; display:flex; justify-content:space-between;">
-    <div class="col-lg-6">
-        @if($setting?->company_signed_logo)
-            <div style="margin-top:8px;">
-                <img src="{{ public_path('storage/'.ltrim($setting->company_signed_logo, '/')) }}" alt="signature" height="60">
-            </div>
-        @endif
-        <div>Authorized Sign. of Indenter / Shipper</div>
+<footer>
+    <div>
+        <img src="{{ public_path('images/footer-img.jpeg') }}" alt="Moksham Logo" style="width:100%; object-fit: contain;">
     </div>
-    <div class="col-lg-6">
-        @if($indent->consignee_signature_path)
-            <div style="margin-top:8px;">
-                <img src="{{ public_path('storage/'.ltrim($indent->consignee_signature_path, '/')) }}" alt="consignee signature" height="60">
-            </div>
-        @endif
-        <div>Authorized Sign. of Consignee</div>
-    </div>
-</div>
+</footer>
+
 </body>
 </html>
