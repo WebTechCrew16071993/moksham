@@ -230,11 +230,11 @@
         </tr>
     @endforeach
     {{-- Fill empty rows to mimic the image look --}}
-    @for ($i = $packingList->items->count(); $i < 9; $i++)
+    <!-- @for ($i = $packingList->items->count(); $i < 9; $i++)
         <tr>
             <td>&nbsp;</td><td></td><td></td><td></td><td></td>
         </tr>
-    @endfor
+    @endfor -->
     </tbody>
 </table>
 
