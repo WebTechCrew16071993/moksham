@@ -5,7 +5,7 @@
     <title>Invoice #{{ $invoice->invoice_no }}</title>
     <style>
         @page {
-            margin: 30px 30px 30px 30px; /* Margins */
+            margin: 30px 60px 30px 60px; 
         }
         body {
             font-family: "Times New Roman", Times, serif;
@@ -117,7 +117,7 @@
 
 <table class="border-all" style="border-bottom: none;">
     <tr>
-        <td style="width: 45%; padding: 0;border-bottom: none; border-right: 1px solid #000; vertical-align: top;">
+        <td style="width: 44%; padding: 0;border-bottom: none; border-right: 1px solid #000; vertical-align: top;">
             <div class="bold border-bottom bg-gray box-header">SHIPPER</div>
             <div style="padding: 5px; height: 75px;">
                 <div class="bold">{{ strtoupper($setting?->company_name) }}</div>
@@ -125,7 +125,7 @@
                 <div>{{ $setting?->company_city }},{{ $setting?->company_state }} {{ $setting?->company_zip }}</div>
             </div>
         </td>
-        <td style="width: 55%; padding: 0;border-bottom: none; vertical-align: top;">
+        <td style="width: 56%; padding: 0;border-bottom: none; vertical-align: top;">
             <table style="width: 100%;border:none !important;">
                 <tr>
                     <td class="bold border-bottom border-right no-border-top no-border-left bg-gray h-1" style="width: 30%;">INVOICE NO.</td>
@@ -150,7 +150,7 @@
 
 <table class="border-all" style="border-top: 1px solid #000;">
     <tr>
-        <td style="width: 45%; padding: 0; vertical-align: top;">
+        <td style="width: 44%; padding: 0; vertical-align: top;">
             <div class="bold border-bottom bg-gray box-header">BILL TO</div>
             <div style="padding: 5px; height: 60px;">
                 <div class="bold">{{ $invoice->consignee?->name }}</div>
@@ -172,7 +172,7 @@
                 </tr>
             </table>
         </td>
-        <td style="width: 55%; padding: 0; vertical-align: top;">
+        <td style="width: 56%; padding: 0; vertical-align: top;">
             <table style="width: 100%;border:none !important;">
                 <tr>
                     <td class="bold border-right border-bottom no-border-top no-border-left bg-gray h-2" style="width: 30%;">RETURN DATE:</td>

@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <title>Bill of Lading</title>
     <style>
-        @page { margin: 20px 25px; }
+        @page { margin: 20px 60px; }
         body {
             font-family: "Times New Roman", Times, serif;
             font-size: 12px !important;

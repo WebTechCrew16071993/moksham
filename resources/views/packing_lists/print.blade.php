@@ -4,7 +4,7 @@
     <meta charset="utf-8"/>
     <title>Packing List #{{ $packingList->id }}</title>
     <style>
-        @page { margin: 40px 30px 40px 30px; }
+        @page { margin: 40px 60px 40px 60px; }
         body { 
             font-family: "Times New Roman", Times, serif; 
             font-size: 12px !important; 
@@ -136,8 +136,8 @@
     {{-- Row 1 --}}
     <tr>
         <th colspan="2" class="bg-gray" style="width: 50%;">SHIPPER</th>
-        <th class="bg-gray" style="width: 15%;">INVOICE NO.</th>
-        <td style="width: 35%;">{{ $invoice?->invoice_no }}</td>
+        <th class="bg-gray" style="width: 17%;">INVOICE NO.</th>
+        <td style="width: 33%;">{{ $invoice?->invoice_no }}</td>
     </tr>
     
     {{-- Row 2 --}}
@@ -169,8 +169,8 @@
 
     {{-- Row 6 --}}
     <tr>
-        <th class="bg-gray" style="width: 16%;">ORIGIN:</th>
-        <td style="width: 34%;">{{ $packingList->origin }}</td>
+        <th class="bg-gray" style="width: 17%;">ORIGIN:</th>
+        <td style="width: 33%;">{{ $packingList->origin }}</td>
         <th class="bg-gray">ARRIVAL DATE:</th>
         <td>{{ optional($packingList->arrival_date)->format('m/d/Y') }}</td>
     </tr>
@@ -212,11 +212,11 @@
 <table class="grid" style="margin-top: 15px;">
     <thead>
         <tr>
-            <th class="text-center bg-gray" style="width: 20%;">CONTAINER NO.</th>
-            <th class="text-center bg-gray" style="width: 15%;">SEAL NO.</th>
+            <th class="text-center bg-gray" style="width: 18%;">CONTAINER NO.</th>
+            <th class="text-center bg-gray" style="width: 13%;">SEAL NO.</th>
             <th class="text-center bg-gray" style="width: 30%;">DESCRIPTION</th>
-            <th class="text-center bg-gray" style="width: 14%;">NO. OF BALES</th>
-            <th class="text-center bg-gray" style="width: 21%;">WEIGHT</th>
+            <th class="text-center bg-gray" style="width: 16%;">NO. OF BALES</th>
+            <th class="text-center bg-gray" style="width: 23%;">WEIGHT</th>
         </tr>
     </thead>
     <tbody>
@@ -242,9 +242,9 @@
 <table class="grid" style="margin-top: 15px;">
     <thead>
         <tr>
-            <th class="text-center bg-gray" style="width: 20%;">TOTAL BALES</th>
-            <th class="text-center bg-gray" style="width: 60%;">DESCRIPTION</th>
-            <th class="text-center bg-gray" style="width: 21%;">TOTAL WEIGHT IN LBS</th>
+            <th class="text-center bg-gray" style="width: 18%;">TOTAL BALES</th>
+            <th class="text-center bg-gray" style="width: 59%;">DESCRIPTION</th>
+            <th class="text-center bg-gray" style="width: 23%;">TOTAL WEIGHT IN LBS</th>
         </tr>
     </thead>
     <tbody>
@@ -258,7 +258,7 @@
 
 {{-- IN KG Small Table (Aligned Right) --}}
 <div style="width: 100%; display: flex; justify-content: flex-end; margin-top: 15px;">
-    <table class="grid" style="width: 35%; margin-left: auto;">
+    <table class="grid" style="width: 38%; margin-left: auto;">
         <tr>
             <th class="text-center bg-gray" style="width: 40%;">IN KG</th>
             <td class="text-center text-bold">{{ number_format($totalWeightKg, 2) }}</td>

@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <title>FORM 6</title>
     <style>
-        @page { margin: 20px; }
+        @page { margin: 20px 60px; }
         body {
             font-family: Arial, sans-serif;
             font-size: 12px !important;
@@ -446,7 +446,7 @@
 
     <div style="page-break-before: always;"></div>
 
-    <div style="padding: 20px;">
+    <div style="padding: 20px 0;">
     <div class="center bold" style="margin-bottom: 5px;">List of abbreviations used in the Movement Document</div>
     <div class="center bold" style="margin-bottom: 20px;">Recovery Operations (*)</div>
 

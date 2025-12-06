@@ -19,7 +19,7 @@
     <meta charset="utf-8">
     <title>Self-Declaration Cum Undertaking Certificate</title>
     <style>
-        @page { margin: 50px 50px; }
+        @page { margin: 50px 60px; }
 
         * {
             font-size: 12px;

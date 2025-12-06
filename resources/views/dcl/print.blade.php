@@ -6,7 +6,7 @@
     <title>Documentary Collection Letter</title>
     <style>
         @page {
-            margin: 50px 50px 50px 50px; /* Margins */
+            margin: 50px 60px 50px 60px; /* Margins */
         }
         body {
             font-family: "Times New Roman", serif;
