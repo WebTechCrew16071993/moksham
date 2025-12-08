@@ -4,21 +4,54 @@
     <meta charset="utf-8" />
     <title>Bill of Lading</title>
     <style>
-        @page { margin: 20px 25px; }
-        body { font-family: DejaVu Sans, sans-serif; font-size: 11px; color: #000; }
-        .heading { text-align: center; font-weight: bold; font-size: 16px; margin: 5px 0 10px; text-transform: uppercase; }
-        .grid { width: 100%; border-collapse: collapse; }
-        .grid th, .grid td { border: 1px solid #000; padding: 6px; vertical-align: top; }
-        .label { font-weight: bold; width: 28%; }
-        .muted { color: #333; }
+        @page { margin: 20px 60px; }
+        body {
+            font-family: "Times New Roman", Times, serif;
+            font-size: 12px !important;
+            color: #000;
+            line-height: 1.2;
+        }
+        .heading {
+            text-align: center;
+            font-weight: bold;
+            font-size: 16px;
+            margin: 5px 0 15px;
+            text-transform: uppercase;
+            text-decoration: underline;
+        }
+        .grid { width: 100%; border-collapse: collapse; table-layout: fixed; }
+        .grid th, .grid td {
+            border: 1px solid #000;
+            padding: 4px 6px;
+            vertical-align: top;
+            word-wrap: break-word;
+        }
+        .bold { font-weight: bold; }
+        .uppercase { text-transform: uppercase; }
+        
+        /* Specific Label Styles to match Image Inconsistency */
+        .label-left { font-weight: bold; width: 20%; }
+        .label-mid { font-weight: bold; width: 18%; text-transform: uppercase; }
+        
+        .header-bg { background-color: #e6e6e6; font-weight: bold; text-align: center; }
+        
+        .text-red { color: red !important; }
+        .text-blue { color: #0070c0 !important; }
+        .italic { font-style: italic; }
+        
         .right { text-align: right; }
         .center { text-align: center; }
-        .small { font-size: 10px; }
-        .block-title { font-weight: bold; text-transform: uppercase; }
-        .no-border td, .no-border th { border: none; }
+        
+        .mt-10 { margin-top: 20px; }
         .mt-6 { margin-top: 6px; }
-        .mt-10 { margin-top: 10px; }
-        .mb-10 { margin-bottom: 10px; }
+        
+        .block-title { font-weight: bold; text-transform: uppercase; margin-bottom: 2px; }
+        
+        /* Helper for stacking text in headers */
+        .stack { display: block; }
+        
+        /* Empty row height */
+        .h-row { height: 18px; }
     </style>
 </head>
 <body>
@@ -38,120 +71,151 @@
         $containerRows = $bl->items;
     ?>
 
-    <div class="heading">Bill of Lading</div>
-
+    {{-- Top Parties Table (2x2 Grid based on image) --}}
     <table class="grid">
         <tr>
-            <td style="width:50%">
-                <div class="block-title">Shipper:</div>
-                <div class="muted">
-                    <div>{{ $shipperName }}</div>
-                    @foreach($shipperAddrLines as $line)
-                        @if($line) <div>{{ $line }}</div> @endif
-                    @endforeach
-                    <div>PH {{ $shipperPhone }}</div>
-                    <div>EMAIL: {{ $shipperEmail }}</div>
+            <td width="50%" style="height: 100px;">
+                <div class="block-title">SHIPPER:</div>
+                <div class="bold">{{ $shipperName }}</div>
+                @foreach($shipperAddrLines as $line)
+                    @if($line) <div>{{ $line }}</div> @endif
+                @endforeach
+                <div>PH {{ $shipperPhone }}</div>
+                <div>EMAIL:{{ $shipperEmail }}</div>
+            </td>
+            <td width="50%">
+                {{-- Top right cell is empty in image --}}
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <div class="block-title" style="margin-bottom: 10px;">CONSIGNEES PARTY:</div>
+                <div style="white-space: pre-line;">{{ $consigneeBlock }}</div>
+                <div class="mt-6">
+                    @if($bl->consignee_iec)<div>IEC: {{ $bl->consignee_iec }}</div>@endif
+                    @if($bl->consignee_gstin)<div>GSTIN: {{ $bl->consignee_gstin }}</div>@endif
+                    @if($bl->consignee_pan)<div>PAN No. : {{ $bl->consignee_pan }}</div>@endif
+                    @if($bl->consignee_email)<div>E-mail: <span class="text-blue" style="text-decoration: underline;">{{ $bl->consignee_email }}</span></div>@endif
                 </div>
             </td>
-            <td style="width:50%">
-                <table class="grid" style="border:0;">
-                    <tr>
-                        <td style="border:0; width:50%">
-                            <div class="block-title">Consignee's Party:</div>
-                            <div class="muted" style="white-space: pre-line;">{{ $consigneeBlock }}</div>
-                            @if($bl->consignee_iec)<div>IEC: {{ $bl->consignee_iec }}</div>@endif
-                            @if($bl->consignee_gstin)<div>GSTIN: {{ $bl->consignee_gstin }}</div>@endif
-                            @if($bl->consignee_pan)<div>PAN: {{ $bl->consignee_pan }}</div>@endif
-                            @if($bl->consignee_email)<div>E-mail: {{ $bl->consignee_email }}</div>@endif
-                        </td>
-                        <td style="border:0; width:50%">
-                            <div class="block-title">Notify Party:</div>
-                            <div class="muted" style="white-space: pre-line;">{{ $notifyBlock }}</div>
-                            @if($bl->notify_party_iec)<div>IEC: {{ $bl->notify_party_iec }}</div>@endif
-                            @if($bl->notify_party_gstin)<div>GSTIN: {{ $bl->notify_party_gstin }}</div>@endif
-                            @if($bl->notify_party_pan)<div>PAN: {{ $bl->notify_party_pan }}</div>@endif
-                            @if($bl->notify_party_email)<div>E-mail: {{ $bl->notify_party_email }}</div>@endif
-                        </td>
-                    </tr>
-                </table>
+            <td>
+                <div class="block-title" style="margin-bottom: 10px;">NOTIFY PARTY:</div>
+                <div style="white-space: pre-line;">{{ $notifyBlock }}</div>
+                <div class="mt-6">
+                    @if($bl->notify_party_iec)<div>IEC: {{ $bl->notify_party_iec }}</div>@endif
+                    @if($bl->notify_party_gstin)<div>GSTIN: {{ $bl->notify_party_gstin }}</div>@endif
+                    @if($bl->notify_party_pan)<div>PAN No. : {{ $bl->notify_party_pan }}</div>@endif
+                    @if($bl->notify_party_email)<div>E-mail: <span class="text-blue" style="text-decoration: underline;">{{ $bl->notify_party_email }}</span></div>@endif
+                </div>
             </td>
         </tr>
     </table>
 
+    {{-- Middle Details Table --}}
     <table class="grid mt-10">
+        <colgroup>
+            <col style="width: 20%">
+            <col style="width: 20%">
+            <col style="width: 20%">
+            <col style="width: 20%">
+            <col style="width: 20%">
+        </colgroup>
         <tr>
-            <td class="label">Port Of Loading</td><td>{{ $bl->port_of_loading }}</td>
-            <td class="label">Origin</td><td>{{ $bl->origin }}</td>
+            <td class="bold">Port Of Loading</td><td>{{ $bl->port_of_loading }}</td>
+            <td class="bold uppercase">ORIGIN:</td><td>{{ $bl->origin }}</td>
+            <td></td>
         </tr>
         <tr>
-            <td class="label">Net Weight (KGS)</td><td class="right">{{ number_format((float)$bl->net_weight_kgs, 3, '.', ',') }}</td>
-            <td class="label">Destination</td><td>{{ $bl->destination }}</td>
+            <td class="bold">Net Weight KGS</td><td class="bold">{{ number_format((float)$bl->net_weight_kgs, 3, '.', '') }} (KGS)</td>
+            <td class="bold uppercase">DESTINATION</td><td>{{ $bl->destination }}</td>
+            <td></td>
         </tr>
         <tr>
-            <td class="label">Cargo Value</td><td>{{ ($bl->currency ?? 'USD') }} {{ number_format((float)$bl->cargo_value, 2) }}</td>
-            <td class="label">Booking No</td><td>{{ $bl->booking_no }}</td>
+            <td class="bold">Cargo Value</td><td>{{ ($bl->currency ?? '$') }}{{ number_format((float)$bl->cargo_value, 2) }}</td>
+            <td class="bold uppercase">BOOKING NO:</td><td>{{ $bl->booking_no }}</td>
+            <td></td>
         </tr>
         <tr>
-            <td class="label">Packaging Types</td><td>{{ $bl->packaging_type }}</td>
-            <td class="label">Ship In</td><td>{{ $bl->ship_in }}</td>
+            <td class="bold">Packaging Types</td><td>{{ $bl->packaging_type }}</td>
+            <td class="bold uppercase">SHIP IN</td><td>{{ $bl->ship_in }}</td>
+            <td></td>
         </tr>
         <tr>
-            <td class="label">Type of Document</td><td>{{ $bl->document_type }}</td>
-            <td class="label">No of Container</td><td>{{ $bl->no_of_containers }} {{ $bl->container_type }}</td>
+            <td class="bold">Type of Document</td><td class="bold text-red">{{ $bl->document_type }}</td>
+            <td class="bold uppercase">NO OF CONTAINER</td><td>{{ $bl->no_of_containers }} {{ $bl->container_type }}</td>
+            <td></td>
         </tr>
     </table>
 
+    {{-- Container Table --}}
     <table class="grid mt-10">
         <thead>
-            <tr>
-                <th>Container No.</th>
-                <th>Seal No.</th>
-                <th>Commodity Details</th>
-                <th>No. of Bales</th>
-                <th class="right">Weight KGS</th>
+            <tr class="header-bg uppercase">
+                <th style="width: 18%">CONTAINER NO.</th>
+                <th style="width: 10%">SEAL NO.</th>
+                <th style="width: 40%">COMMODITY DETAILS.</th>
+                <th style="width: 10%">NO. OF BALES</th>
+                <th style="width: 22%">WEIGHT<br>KGS</th>
             </tr>
         </thead>
         <tbody>
             @foreach($containerRows as $row)
                 <tr>
-                    <td>{{ $row->container_no }}</td>
-                    <td>{{ $row->seal_no }}</td>
+                    <td class="center">{{ $row->container_no }}</td>
+                    <td class="center">{{ $row->seal_no }}</td>
                     <td>{{ $row->commodity }}</td>
                     <td class="center">{{ $row->no_of_bales }}</td>
-                    <td class="right">{{ number_format((float)$row->weight_kgs, 3, '.', ',') }}</td>
+                    <td class="center">{{ number_format((float)$row->weight_kgs, 3, '.', '') }}</td>
                 </tr>
             @endforeach
-            @for($i=count($containerRows); $i<5; $i++)
+            {{-- Fill rows to match image height (approx 10 total slots) --}}
+            @for($i=count($containerRows); $i<10; $i++)
                 <tr>
-                    <td>&nbsp;</td>
-                    <td>&nbsp;</td>
-                    <td>&nbsp;</td>
-                    <td>&nbsp;</td>
-                    <td>&nbsp;</td>
+                    <td class="h-row">&nbsp;</td>
+                    <td class="h-row">&nbsp;</td>
+                    <td class="h-row">&nbsp;</td>
+                    <td class="h-row">&nbsp;</td>
+                    <td class="h-row">&nbsp;</td>
                 </tr>
             @endfor
         </tbody>
     </table>
 
+    {{-- Totals Table --}}
     <table class="grid mt-10">
-        <tr>
-            <td class="label">Total Bales</td><td class="center">{{ $bl->total_bales }}</td>
-            <td class="label">Description</td><td>{{ $bl->commodity_description }}</td>
-            <td class="label">Total Weight in KGS</td><td class="right">{{ number_format((float)$bl->net_weight_kgs, 3, '.', ',') }}</td>
+        <tr class="header-bg bold uppercase">
+            <td style="width: 18%">TOTAL BALES</td>
+            <td style="width: 60%">DESCRIPTION</td>
+            <td style="width: 22%">TOTAL WEIGHT IN KGS</td>
         </tr>
         <tr>
-            <td class="label">In MTS</td><td class="center">{{ number_format((float)$bl->net_weight_mts, 3, '.', ',') }}</td>
-            <td colspan="4"></td>
+            <td class="center">{{ $bl->total_bales }}</td>
+            <td class="center uppercase">{{ $bl->commodity_description }}</td>
+            <td class="center bold">{{ number_format((float)$bl->net_weight_kgs, 3, '.', '') }}</td>
         </tr>
     </table>
 
-    <div class="mt-10 small center">
+    {{-- IN MTS Floating Table --}}
+    <table class="grid mt-10" style="border-top: 0; width: 100%;">
+        <tr>
+            <td style="width:60%; border:0;"></td>
+            <td style="width: 18%" class="header-bg bold center">IN MTS</td>
+            <td style="width: 22%" class="center bold">{{ number_format((float)$bl->net_weight_mts, 6, '.', '') }}</td>
+        </tr>
+    </table>
+
+    <div class="mt-10 center" style="margin-top: 20px;">
         @if(!$asPdf)
-            <em>Preview — use the PDF action to download/print</em>
+            <div style="margin-bottom: 10px; font-size: 10px;"><em>Preview Mode</em></div>
         @endif
-        <div class="mt-6">If you have any question please reach us at: <strong>{{ $shipperEmail }}</strong></div>
-        <div>Please contact us within 24 hrs for any necessary correction.</div>
-        <div class="mt-6"><strong>Thank you for your business!</strong></div>
+        
+        <div style="margin-bottom: 8px;">
+            <span class="uppercase">IF YOU HAVE ANY QUESTION PLEASE REACH US AT:</span> 
+            <a href="mailto:{{ $shipperEmail }}" class="text-blue bold" style="text-decoration: underline; text-transform: uppercase;">{{ $shipperEmail }}</a>
+        </div>
+        <div class="uppercase" style="margin-bottom: 15px;">PLEASE CONTACT US WITHIN 24 HRS FOR ANY NECESSARY CORRECTION.</div>
+        
+        <div class="text-blue italic bold uppercase" style="color: #0070c0;">THANK YOU FOR YOUR BUSINESS ....!</div>
     </div>
 </body>
 </html>

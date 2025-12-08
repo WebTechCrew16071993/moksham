@@ -5,77 +5,141 @@
     <meta charset="utf-8">
     <title>Documentary Collection Letter</title>
     <style>
-        body { font-family: DejaVu Sans, sans-serif; font-size: 12px; color:#111; }
-        .header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:20px; }
-        .title { font-size: 16px; font-weight: bold; margin:20px 0; }
-        .muted { color:#555; }
-        .box { border:1px solid #000; padding:14px; }
-        .mt-2{ margin-top:8px; } .mt-3{ margin-top:12px; } .mb-2{ margin-bottom:8px; }
+        @page {
+            margin: 50px 60px 50px 60px; /* Margins */
+        }
+        body {
+            font-family: "Times New Roman", serif;
+            font-size: 14px !important;
+            color: #000;
+            line-height: 1.3;
+            margin: 0;
+        }
+        
+        /* Layout Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            border-spacing: 0;
+        }
+        td {
+            vertical-align: top;
+            padding: 0;
+        }
+
+        /* Helpers */
+        .bold { font-weight: bold; }
+        .text-right { text-align: right; }
+        
+        /* Header Specifics */
+        .header-right {
+            text-align: right;
+            padding-top: 50px; 
+        }
+        
+        /* Spacing utilities */
+        .mb-1 { margin-bottom: 5px; }
+        .mt-4 { margin-top: 40px; }
+        
+        /* Sections */
+        .subject-line {
+            font-weight: bold;
+            margin-top: 40px;
+            margin-bottom: 20px;
+        }
+        
+        .bank-details {
+            margin-top: 15px;
+            margin-bottom: 15px;
+        }
+
+        .footer {
+            margin-top: 60px;
+            page-break-inside: avoid;
+        }
     </style>
 </head>
 <body>
-    <div class="header">
-        <div>
-            <img src="{{ public_path('images/moksham-logo.png') }}" style="height:50px;">
-            <div class="muted">{{ $setting?->company_address }}<br>{{ trim(($setting?->company_city.' '.$setting?->company_state.' '.$setting?->company_zip)) }}<br>{{ $setting?->company_country }}</div>
-            @if (isset($setting?->company_email))
-                <div>Email : {{ $setting?->company_email }}</div>
-            @endif 
-        </div>
-        <div class="muted" style="text-align:right">
-            <div>Documents for Invoice No.: {{ $letter->invoice?->invoice_no }}</div>
-            <div>MOKSHAM EXPORT IMPORT LLC.</div>
-            <div>SA's Contract No.: {{ $letter->sa_contract_no }}</div>
-        </div>
+
+    <table>
+        <tr>
+            <td width="65%">
+                <img src="{{ public_path('images/moksham-logo.png') }}" style="height:50px; display:block; margin-bottom: 8px;">
+                
+                <div style="font-size:12px; text-transform: uppercase;">{{ $setting?->company_address }}</div>
+                <div style="font-size:12px; text-transform: uppercase;">{{ trim(($setting?->company_city.' '.$setting?->company_state.' '.$setting?->company_zip)) }} {{ $setting?->company_country }}</div>
+                @if (isset($setting?->company_email))
+                    <div style="font-size:12px; text-transform: uppercase;">E-MAIL : {{ strtoupper($setting?->company_email) }}</div>
+                @endif
+            </td>
+
+            <td width="35%" class="header-right">
+                <div style="font-size:12px; text-align: left" class="bold">Documents for Invoice No. : {{ $letter->invoice?->invoice_no }}</div>
+                <div style="font-size:12px; text-align: left" class="bold">{{ $setting->company_name ?? 'MOKSHAM EXPORT IMPORT LLC.' }}</div>
+                <div style="font-size:12px; text-align: left" class="bold">SA's Contract No. : {{ $letter->sa_contract_no }}</div>
+        
+                <div style="font-size:12px; padding-top:30px; text-align: left;"><span class="bold">Date:</span> {{ \Illuminate\Support\Carbon::parse($letter->letter_date ?? now())->format('M d,Y') }}</div>
+            </td>
+        </tr>
+    </table>
+
+    <div class="subject-line">
+        RE : Documentary collection on our customer {{ $letter->consignee?->name }} in {{ $letter->consignee?->country ?? 'INDIA' }}.
     </div>
 
-    <div class="muted" style="text-align:right">Date: {{ \Illuminate\Support\Carbon::parse($letter->letter_date ?? now())->format('M d,Y') }}</div>
+    <div class="mb-1 bold">Dear Sirs,</div>
 
-    <div class="title">RE : Documentary collection on our customer {{ $letter->consignee?->name }} in {{ $letter->consignee?->country }}.</div>
-
-    <p>Dear Sirs,</p>
-    <p>Please find attached the whole set of documents for our a/m customer under our invoice number <strong>{{ $letter->invoice?->invoice_no }}</strong> for <strong>USD {{ number_format($letter->amount_usd,2) }}</strong></p>
+    <p>
+        Please find attached the whole set of documents for our a/m customer under our invoice number
+        <span class="bold">{{ $letter->invoice?->invoice_no }}</span> for <span class="bold">USD {{ number_format($letter->amount_usd, 2) }}</span>
+    </p>
 
     <p>Please present these documents for acceptance/collection through:</p>
 
-    <div class="">
+    <div class="bank-details">
         @if($letter->consignee && ($letter->consignee->bank_name || $letter->consignee->bank_account_number))
-            <strong>{{ $letter->consignee->bank_name }}</strong>
+            <div class="bold">{{ $letter->consignee->bank_name }}</div>
             @if($letter->consignee->bank_address)
-                <br>{{ $letter->consignee->bank_address }}
+                <div>{{ $letter->consignee->bank_address }}</div>
                 @if($letter->consignee->bank_city)
-                    , {{ $letter->consignee->bank_city }}
-                    @if($letter->consignee->bank_state)
-                        , {{ $letter->consignee->bank_state }}
-                    @endif
+                    <div>
+                        {{ $letter->consignee->bank_city }}
+                        @if($letter->consignee->bank_state)
+                            , {{ $letter->consignee->bank_state }}
+                        @endif
+                    </div>
                 @endif
             @endif
-            {{-- @if($letter->consignee->bank_account_number)
-                <br>Account #: {{ $letter->consignee->bank_account_number }}
-            @endif
-            @if($letter->consignee->bank_swift_code)
-                <br>SWIFT: {{ $letter->consignee->bank_swift_code }}
-            @endif --}}
         @else
-            {!! nl2br(e($letter->notes ?: 'STATE BANK OF INDIA\nWHOLESALE BANKING OPERATIONS,\n(Importer bank details, if any)')) !!}
+            <div class="bold">STATE BANK OF INDIA</div>
+            <div>WHOLESALE BANKING OPERATIONS,</div>
+            <div>Sahakari Jin Road Branch, Uma Complex,</div>
+            <div>Plot No 9-10, Rajmehal Society, Sahkari Jin Road,</div>
+            <div>Himatnagar - 383 001 GUJARAT – (INDIA)</div>
         @endif
     </div>
 
-    <p class="mt-3">Please note all bank’s commissions and charges outside USA are for drawee’s account.</p>
-    <p>Documents not to be released prior previous acceptance and/or full payment of our above draft(s) and/or invoice.</p>
+    <p style="margin-top: 20px;">Please note all bank’s commissions and charges outside USA are for drawee’s account.</p>
+    
+    <p>Documents not to be released prior previous acceptance and/or full payment of our above draft (s) and/or invoice.</p>
 
-    <div class="mt-3" style="text-align:right">
-        <div>Yours faithfully,</div>
-        <div class="title">{{ $setting->company_signature_text ?? $setting->company_name ?? 'MOKSHAM EXPORT IMPORT LLC' }}</div>
-        <div class="mt-2">__________________________</div>
-        <div class="muted">
-            {{ $letter->signer_name ?? '' }}
-            @if($letter->signer_name && $letter->signer_title)
-                ({{ $letter->signer_title }})
-            @else
-                (Authorised Signature)
-            @endif
-        </div>
-    </div>
+    <table>
+        <tr>
+            <td style="width: 70%;">
+
+            </td>
+            <td>
+                <div class="footer" style="text-align: center;">
+                    <div>Yours faithfully,</div>
+                    <div class="bold" style="margin-top: 2px;text-transform: uppercase;">{{ $setting->company_signature_text ?? $setting->company_name ?? 'MOKSHAM EXPORT IMPORT LLC.' }}</div>
+                    
+                    <div style="height: 60px;"></div>
+                    
+                    <div>{{ $letter->signer_name ?? 'Mr. NIK PATEL' }}({{ $letter->signer_title ?? ' C.O.O.' }})</div>
+                </div>
+            </td>
+        </tr>
+    </table>
+
 </body>
 </html>
