@@ -280,7 +280,7 @@
                         <div class="bold"><span class="bold">ROUTING NO. :</span> {{ $setting?->bank_routing_number }}</div>
                     </td>
                     
-                    <td class="no-border-left no-border-bottom no-border-right" style="width: 30%; vertical-align: top; text-align: center; padding-top: 5px;">
+                    {{-- <td class="no-border-left no-border-bottom no-border-right" style="width: 30%; vertical-align: top; text-align: center; padding-top: 5px;">
                         <div style="margin-bottom: 10px; color: #555; font-size: 11px;">
                             For and on Behalf of<br>
                             <span style="color: #444; font-size: 13px;">{{ $setting?->company_name }}.</span><br>
@@ -292,7 +292,7 @@
                                 : asset('images/signature.png');
                         @endphp
                         <img src="{{ $sigPath }}" alt="Signature" style="height: 45px;">
-                    </td>
+                    </td> --}}
                 </tr>
             </table>
         </td>
@@ -331,7 +331,7 @@
     ** OBL Courier Fee: Domestic $30.00, International $90.00
 </div>
 
-<div style="margin-top: 60px; text-align: right;">
+{{-- <div style="margin-top: 60px; text-align: right;">
     <div class="center" style="display: inline-block; width: 220px; margin-right: 30px;">
         <div style="color: #666;font-size: 10px; margin-bottom: 20px;">
             For and on Behalf of<br>
@@ -340,7 +340,7 @@
         </div>
         <img src="{{ $sigPath }}" alt="Signature" style="height: 50px;">
     </div>
-</div>
+</div> --}}
 
 <div class="page-2-footer">
     <div style="border-bottom: 2px solid #000; margin-bottom: 15px;"></div>
