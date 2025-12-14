@@ -20,7 +20,7 @@
         .right { text-align: right; }
         .left { text-align: left; }
         .uppercase { text-transform: uppercase; }
-        .text-red { color: red !important; }
+        .text-red { color: #dd2b1c !important; }
         .text-blue { color: #0070c0 !important; }
         .bg-gray { background-color: #e6e6e6; }
 
