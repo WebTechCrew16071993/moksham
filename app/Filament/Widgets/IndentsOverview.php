@@ -5,6 +5,7 @@ namespace App\Filament\Widgets;
 use App\Models\Indent;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Card;
+use Illuminate\Support\Facades\Auth;
 
 class IndentsOverview extends BaseWidget
 {
@@ -39,8 +40,13 @@ class IndentsOverview extends BaseWidget
 
     public static function canView(): bool
     {
-        // Do not render on the main dashboard; allow on resource pages that explicitly include it.
-        return !request()->routeIs('filament.admin.pages.dashboard');
+        // Do not render on the main dashboard
+        if (request()->routeIs('filament.admin.pages.dashboard')) {
+            return false;
+        }
+        // Show only to admins
+        $user = Auth::user();
+        return $user && method_exists($user, 'isAdmin') && $user->isAdmin();
     }
 
     /**

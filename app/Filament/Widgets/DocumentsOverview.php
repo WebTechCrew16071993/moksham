@@ -12,6 +12,8 @@ use App\Filament\Resources\Form9DocumentResource;
 use App\Filament\Resources\BillOfExchangeResource;
 use App\Filament\Resources\DocumentaryCollectionLetterResource;
 use App\Filament\Resources\SelfDeclarationResource;
+use App\Filament\Resources\CreditNoteResource;
+use App\Filament\Resources\DebitNoteResource;
 use App\Models\Indent;
 use App\Models\PackingList;
 use App\Models\CertificateOfOrigin;
@@ -22,8 +24,10 @@ use App\Models\Form9Document;
 use App\Models\BillOfExchange;
 use App\Models\DocumentaryCollectionLetter;
 use App\Models\SelfDeclaration;
+use App\Models\CreditDebitNote;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Card;
+use Illuminate\Support\Facades\Auth;
 
 class DocumentsOverview extends BaseWidget
 {
@@ -43,8 +47,10 @@ class DocumentsOverview extends BaseWidget
         $dcl = $this->getDclFinalizedCount();
         $boe = $this->getBoeFinalizedCount();
         $sdec = $this->getSelfDeclarationFinalizedCount();
+        $creditNotes = $this->getCreditNotesCount();
+        $debitNotes = $this->getDebitNotesCount();
 
-        $total = $intentList  + $packagingList + $bls + $form6 + $form9 + $invoices + $dcl + $boe + $sdec;
+        $total = $intentList  + $packagingList + $bls + $form6 + $form9 + $invoices + $dcl + $boe + $sdec + $creditNotes + $debitNotes;
         // $total = $intentList  + $packagingList + $cca + $psic + $cco + $form6 + $form9 + $invoices;
 
         return [
@@ -127,12 +133,28 @@ class DocumentsOverview extends BaseWidget
                 ->url(SelfDeclarationResource::getUrl('index'))
                 ->extraAttributes(['wire:navigate' => true]),
 
+            Card::make('Credit Notes', (string) $creditNotes)
+                ->color('cyan')
+                ->icon('heroicon-o-receipt-percent')
+                ->url(CreditNoteResource::getUrl('index'))
+                ->extraAttributes(['wire:navigate' => true]),
+
+            Card::make('Debit Notes', (string) $debitNotes)
+                ->color('pink')
+                ->icon('heroicon-o-receipt-percent')
+                ->url(DebitNoteResource::getUrl('index'))
+                ->extraAttributes(['wire:navigate' => true]),
+
         ];
     }
 
     public static function canView(): bool
     {
-        return request()->routeIs('filament.admin.pages.dashboard');
+        if (!request()->routeIs('filament.admin.pages.dashboard')) {
+            return false;
+        }
+        $user = Auth::user();
+        return $user && method_exists($user, 'isAdmin') && $user->isAdmin();
     }
 
     // Dynamic counts (exclude drafts where applicable)
@@ -169,5 +191,11 @@ class DocumentsOverview extends BaseWidget
     }
     protected function getSelfDeclarationFinalizedCount(): int {
         return SelfDeclaration::query()->where('status', 'finalized')->count();
+    }
+    protected function getCreditNotesCount(): int {
+        return CreditDebitNote::query()->where('type', 'credit')->count();
+    }
+    protected function getDebitNotesCount(): int {
+        return CreditDebitNote::query()->where('type', 'debit')->count();
     }
 }

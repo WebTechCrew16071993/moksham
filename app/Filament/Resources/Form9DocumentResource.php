@@ -794,7 +794,7 @@ class Form9DocumentResource extends Resource
                 $query = $query->where(function($q) use ($allowed){
                     $q->whereHas('shipment.indent.hsn', fn($qq)=> $qq->whereIn('category_id', $allowed))
                       ->orWhereHas('invoice.shipment.indent.hsn', fn($qq)=> $qq->whereIn('category_id', $allowed))
-                      ->orWhereHas('blCorrection.shipment.indent.hsn', fn($qq)=> $qq->whereIn('category_id', $allowed));
+                      ->orWhereHas('bl.shipment.indent.hsn', fn($qq)=> $qq->whereIn('category_id', $allowed));
                 });
             }
         }
@@ -828,8 +828,12 @@ class Form9DocumentResource extends Resource
 
     public static function getRelations(): array
     {
-        return [
-            \App\Filament\Resources\Form9DocumentResource\RelationManagers\HistoriesRelationManager::class,
-        ];
+        $user = Auth::user();
+        if ($user && method_exists($user, 'isAdmin') && $user->isAdmin()) {
+            return [
+                \App\Filament\Resources\Form9DocumentResource\RelationManagers\HistoriesRelationManager::class,
+            ];
+        }
+        return [];
     }
 }

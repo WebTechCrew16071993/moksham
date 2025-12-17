@@ -11,6 +11,7 @@ use App\Http\Controllers\Form9PrintController;
 use App\Http\Controllers\DocumentaryCollectionLetterPrintController;
 use App\Http\Controllers\BillOfExchangePrintController;
 use App\Http\Controllers\SelfDeclarationPrintController;
+use App\Http\Controllers\CreditDebitNotePrintController;
 
 // Route::get('/', function () {
 //     return view('welcome');
@@ -38,6 +39,10 @@ Route::get('/invoices/{invoice}/pdf', [InvoicePrintController::class, 'pdf'])->n
 // Generate or update invoice from a packing list, then redirect to invoice PDF
 Route::post('/packing-lists/{packingList}/generate-invoice', [InvoicePrintController::class, 'generateForPackingList'])
     ->name('invoices.generate-from-packing-list');
+
+// Credit/Debit Note printable view/PDF
+Route::get('/cdn/{note}/print', [CreditDebitNotePrintController::class, 'show'])->name('cdn.print');
+Route::get('/cdn/{note}/pdf', [CreditDebitNotePrintController::class, 'pdf'])->name('cdn.pdf');
 
 // Certificate of Origin printable view/PDF
 Route::get('/certificates/{certificate}/print', [CertificatePrintController::class, 'show'])->name('certificates.print');

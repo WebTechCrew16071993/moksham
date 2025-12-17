@@ -3,7 +3,7 @@
 <html>
 <head>
     <meta charset="utf-8"/>
-    <title>Credit Note #{{ $indent->indent_no ?? 'CN/02' }}</title>
+    <title>{{ strtoupper($note->type) }} Note #{{ $note->note_no }}</title>
     <style>
         @page {
             size: A4;
@@ -103,26 +103,30 @@
 </header>
 <table class="main-table">
     <tr>
-        <td colspan="4" class="header-title">CREDIT NOTE</td>
+        <td colspan="4" class="header-title">{{ strtoupper($note->type) }} NOTE</td>
     </tr>
 
     <tr>
         <td colspan="2" class="address-block" style="width: 65%;">
-            <div>Credit Note No. : {{ $indent->indent_no ?? 'CN/02' }}</div>
+            <div>{{ ucfirst($note->type) }} Note No. : {{ $note->note_no }}</div>
             <br>
-            <div>AMBITION PAPER TECH PVT. LTD.</div>
-            <div>Polt No.106,Village Sadani Muvadi, Majar Talod</div>
-            <div>Road, Gandari Chowkdi, Taluka-Prantij, Sabarkantha,</div>
-            <div>Gujarat - 383 205, INDIA.</div>
-            <div>IEC: AAUCA0892M, GSTIN : 24AAUCA0892M1Z3</div>
-            <div>PAN No : AAUCA0892M</div>
+            @php
+                $c = $note->consignee ?: $invoice->consignee;
+            @endphp
+            @if($c)
+                <div>{{ $c->name }}</div>
+                @if($c->address)
+                    <div style="white-space: pre-line;">{!! $c->address !!}</div>
+                @endif
+                <div>{{ $c->city }}, {{ $c->state }} {{ $c->zip }}</div>
+            @endif
             <br><br><br>
-            <div>Your Account has been credited as under :</div>
+            <div>Your Account has been {{ $note->type === 'debit' ? 'debited' : 'credited' }} as under :</div>
         </td>
 
         <td colspan="2" style="width: 35%;">
-            <div>Date : 17/11/2025</div>
-            <div>Against Invoice : 1005</div>
+            <div>Date : {{ optional($note->date)->format('d/m/Y') }}</div>
+            <div>Against Invoice : {{ $invoice->invoice_no }}</div>
         </td>
     </tr>
 
@@ -143,40 +147,28 @@
 
     <tr >  
         <td class="text-center">1.</td>
-        <td style="height: 100px;">
-            We are issuing a Credit Note for the Difference in Qty. LESS
-            As Per Not Order, Qty. Weight Short ,Poor Quality
-        </td>
-        <td></td>
-        <td></td>
+        <td style="height: 100px; white-space: pre-line;">{!! nl2br(e($note->row1_details)) !!}</td>
+        <td class="text-right" style="vertical-align: top;">{{ $note->row1_amount_usd ? ('$ '.number_format((float)$note->row1_amount_usd, 2)) : '' }}</td>
+        <td class="text-right" style="vertical-align: top;">{{ $note->row1_amount_credit ? number_format((float)$note->row1_amount_credit, 2) : '' }}</td>
     </tr>
 
     <tr>
-        <td colspan="2" class="font-bold text-center">
-            Charges Incurred Due to Document Submission Delay From Your Side
-        </td>
+        <td colspan="2" class="font-bold text-center">{{ $note->subheader }}</td>
         <td></td>
         <td></td>
     </tr>
 
     <tr>
         <td class="text-center">2.</td>
-        <td style="height: 160px;">
-            BOOKING NO. 31555951<br>
-            B/L-NO. HLCUBSC2509AVNU6
-        </td>
-        <td class="text-right" style="vertical-align: top;">
-            $ 11,864.00
-        </td>
-        <td class="text-right" style="vertical-align: top;">
-            1,632.00
-        </td>
+        <td style="height: 160px; white-space: pre-line;">{!! nl2br(e($note->row2_details)) !!}</td>
+        <td class="text-right" style="vertical-align: top;">{{ $note->row2_amount_usd ? ('$ '.number_format((float)$note->row2_amount_usd, 2)) : '' }}</td>
+        <td class="text-right" style="vertical-align: top;">{{ $note->row2_amount_credit ? number_format((float)$note->row2_amount_credit, 2) : '' }}</td>
     </tr>
 
     <tr>
-        <td colspan="2" class="text-right font-bold" style="font-size: 16px;">TOTAL CREDIT AMOUNT</td>
-        <td class="text-right font-bold text-red" style="font-size: 16px;">$ 10,232.00</td>
-        <td class="text-right font-bold" style="font-size: 16px;">0.00</td>
+        <td colspan="2" class="text-right font-bold" style="font-size: 16px;">TOTAL {{ strtoupper($note->type) }} AMOUNT</td>
+        <td class="text-right font-bold text-red" style="font-size: 16px;">{{ $note->total_amount ? ('$ '.number_format((float)$note->total_amount, 2)) : '' }}</td>
+        <td class="text-right font-bold" style="font-size: 16px;">{{ $note->type === 'credit' ? '0.00' : '' }}</td>
     </tr>
 
     <tr>

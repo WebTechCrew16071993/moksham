@@ -154,11 +154,16 @@ class ShipmentResource extends Resource
 
     public static function getRelations(): array
     {
-        return [
-            PackingListsRelationManager::class,
-            BlCorrectionsRelationManager::class,
-            InvoicesRelationManager::class,
-        ];
+        $user = Auth::user();
+        if ($user && method_exists($user, 'isAdmin') && $user->isAdmin()) {
+            return [
+                PackingListsRelationManager::class,
+                BlCorrectionsRelationManager::class,
+                InvoicesRelationManager::class,
+            ];
+        }
+        // For non-admin users, do not show relation managers on Shipment
+        return [];
     }
 
     public static function getPages(): array

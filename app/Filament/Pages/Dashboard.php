@@ -15,6 +15,7 @@ class Dashboard extends BaseDashboard
     {
         return [
             \App\Filament\Widgets\DocumentsOverview::class,
+            \App\Filament\Widgets\NonAdminHello::class,
         ];
     }
 

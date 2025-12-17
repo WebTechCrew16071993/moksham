@@ -122,14 +122,21 @@ class UserResource extends Resource
                             ->unique(ignoreRecord: true)
                             ->maxLength(255),
 
+                        // Show read-only Admin label when the record is an Admin
+                        Forms\Components\Placeholder::make('__role_admin_label')
+                            ->label('Role')
+                            ->content('Admin')
+                            ->visible(fn (Forms\Get $get): bool => ($get('role') === 'admin'))
+                            ->dehydrated(false),
+
+                        // For non-admin records and on create, allow only 'User'
                         Forms\Components\Select::make('role')
-                            ->options([
-                                'admin' => 'Admin',
-                                'user'  => 'User',
-                            ])
+                            ->label('Role')
+                            ->options([ 'user' => 'User' ])
+                            ->default('user')
                             ->required()
                             ->native(false)
-                            ->live(),
+                            ->visible(fn (Forms\Get $get): bool => ($get('role') !== 'admin')),
 
                         Forms\Components\TextInput::make('password')
                             ->password()
