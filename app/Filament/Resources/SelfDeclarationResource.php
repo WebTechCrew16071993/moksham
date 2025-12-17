@@ -11,6 +11,8 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Database\Eloquent\Builder;
 
 class SelfDeclarationResource extends Resource
 {
@@ -29,7 +31,18 @@ class SelfDeclarationResource extends Resource
             Forms\Components\Group::make()->columns(12)->schema([
                 Forms\Components\Select::make('invoice_id')
                     ->label('Invoice')
-                    ->options(fn()=> Invoice::query()->latest('id')->pluck('invoice_no','id'))
+                    ->options(function(){
+                        $query = Invoice::query()->latest('id');
+                        $user = Auth::user();
+                        if ($user && !$user->isAdmin()) {
+                            $allowed = \App\Services\DocumentPermissionService::allowedCategoryIds($user);
+                            if (is_array($allowed)) {
+                                if (empty($allowed)) return [];
+                                $query->whereHas('shipment.indent.hsn', fn($q)=> $q->whereIn('category_id', $allowed));
+                            }
+                        }
+                        return $query->pluck('invoice_no','id');
+                    })
                     ->searchable()->preload()->native(false)->required()->columnSpan(3),
                 Forms\Components\TextInput::make('certificate_number')->label('Certificate #')->readOnly()->columnSpan(3),
                 Forms\Components\DatePicker::make('issue_date')->label('Issue Date')->native(false)->columnSpan(3),
@@ -88,4 +101,20 @@ class SelfDeclarationResource extends Resource
     public static function canCreate(): bool { return DocumentPermissionService::canCreate(static::$permissionResource); }
     public static function canEdit($record): bool { return DocumentPermissionService::canUpdate(static::$permissionResource); }
     public static function canDelete($record): bool { return DocumentPermissionService::canDelete(static::$permissionResource); }
+
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+        $user = Auth::user();
+        if ($user && !$user->isAdmin()) {
+            $allowed = DocumentPermissionService::allowedCategoryIds($user);
+            if (is_array($allowed)) {
+                if (empty($allowed)) return $query->whereRaw('1 = 0');
+                $query = $query->whereHas('invoice.shipment.indent.hsn', function ($q) use ($allowed) {
+                    $q->whereIn('category_id', $allowed);
+                });
+            }
+        }
+        return $query;
+    }
 }

@@ -14,6 +14,8 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Database\Eloquent\Builder;
 
 class ShipmentResource extends Resource
 {
@@ -48,7 +50,20 @@ class ShipmentResource extends Resource
                     ->schema([
                         Forms\Components\Select::make('indent_id')
                             ->label('Indent')
-                            ->options(fn () => Indent::query()->orderByDesc('indent_no')->pluck('indent_no', 'id'))
+                            ->options(function () {
+                                $query = Indent::query();
+                                $user = Auth::user();
+                                if ($user && !$user->isAdmin()) {
+                                    $allowed = \App\Services\DocumentPermissionService::allowedCategoryIds($user);
+                                    if (is_array($allowed)) {
+                                        if (empty($allowed)) {
+                                            return [];
+                                        }
+                                        $query->whereHas('hsn', fn ($q) => $q->whereIn('category_id', $allowed));
+                                    }
+                                }
+                                return $query->orderByDesc('indent_no')->pluck('indent_no', 'id');
+                            })
                             ->searchable()
                             ->preload()
                             ->native(false)
@@ -153,6 +168,26 @@ class ShipmentResource extends Resource
             'create' => Pages\CreateShipment::route('/create'),
             'edit' => Pages\EditShipment::route('/{record}/edit'),
         ];
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+
+        $user = Auth::user();
+        if ($user && !$user->isAdmin()) {
+            $allowed = DocumentPermissionService::allowedCategoryIds($user);
+            if (is_array($allowed)) {
+                if (empty($allowed)) {
+                    return $query->whereRaw('1 = 0');
+                }
+                $query = $query->whereHas('indent.hsn', function ($q) use ($allowed) {
+                    $q->whereIn('category_id', $allowed);
+                });
+            }
+        }
+
+        return $query;
     }
 
     public static function shouldRegisterNavigation(): bool

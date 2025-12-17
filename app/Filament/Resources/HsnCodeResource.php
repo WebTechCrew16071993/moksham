@@ -4,12 +4,13 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\HsnCodeResource\Pages;
 use App\Models\HsnCode;
+use App\Models\Category;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Filament\Tables\Filters\TrashedFilter;
+use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Auth;
@@ -43,14 +44,22 @@ class HsnCodeResource extends Resource
             ->schema([
                 Forms\Components\Section::make('Details')
                     ->schema([
-                        Forms\Components\Select::make('category')
+                        Forms\Components\Select::make('category_id')
                             ->label('Category')
-                            ->options([
-                                'Plastic' => 'Plastic',
-                                'Metal' => 'Metal',
-                            ])
+                            ->relationship('category', 'name')
+                            ->searchable()
+                            ->preload()
                             ->required()
-                            ->native(false),
+                            ->native(false)
+                            ->createOptionForm([
+                                Forms\Components\TextInput::make('name')
+                                    ->label('Name')
+                                    ->required()
+                                    ->maxLength(255),
+                                Forms\Components\TextInput::make('description')
+                                    ->label('Description')
+                                    ->maxLength(255),
+                            ]),
                         Forms\Components\TextInput::make('code')
                             ->label('HSN Code')
                             ->placeholder('e.g. 3920')
@@ -74,21 +83,15 @@ class HsnCodeResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('code')->label('HSN Code')->searchable()->sortable(),
-                Tables\Columns\TextColumn::make('category')->sortable()->badge(),
+                Tables\Columns\TextColumn::make('category.name')->label('Category')->sortable()->badge(),
                 // Tables\Columns\TextColumn::make('description')->limit(50)->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('created_at')->since()->sortable(),
             ])
-            // ->filters([
-            //     TrashedFilter::make(),
-            //     Tables\Filters\SelectFilter::make('category')
-            //         ->options([
-            //             'Plastic' => 'Plastic',
-            //             'Metal' => 'Metal',
-            //         ]),
-            //     Tables\Filters\TernaryFilter::make('is_active')
-            //         ->label('Active')
-            //         ->boolean(),
-            // ])
+            ->filters([
+                SelectFilter::make('category_id')
+                    ->label('Category')
+                    ->options(fn () => \App\Models\Category::query()->orderBy('name')->pluck('name', 'id')->all()),
+            ])
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make()
@@ -103,8 +106,6 @@ class HsnCodeResource extends Resource
                             $action->cancel();
                         }
                     }),
-                Tables\Actions\ForceDeleteAction::make(),
-                Tables\Actions\RestoreAction::make(),
             ]);
             // ->bulkActions([
             //     Tables\Actions\BulkActionGroup::make([
@@ -126,10 +127,8 @@ class HsnCodeResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()
-            ->withoutGlobalScopes([
-                SoftDeletingScope::class,
-            ]);
+        // Keep default SoftDeletingScope so trashed records are hidden by default
+        return parent::getEloquentQuery();
     }
 
     public static function shouldRegisterNavigation(): bool

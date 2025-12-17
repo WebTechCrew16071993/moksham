@@ -16,6 +16,8 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Database\Eloquent\Builder;
 
 class Form6DocumentResource extends Resource
 {
@@ -34,16 +36,97 @@ class Form6DocumentResource extends Resource
             Forms\Components\Group::make()->columns(12)->schema([
                 Forms\Components\Select::make('shipment_id')
                     ->label('Shipment (BKG #)')
-                    ->options(fn()=> Shipment::query()->orderByDesc('booking_date')->pluck('booking_no','id'))
-                    ->searchable()->preload()->native(false)->required()->columnSpan(4),
+                    ->options(function(){
+                        $query = Shipment::query();
+                        $user = Auth::user();
+                        if ($user && !$user->isAdmin()) {
+                            $allowed = \App\Services\DocumentPermissionService::allowedCategoryIds($user);
+                            if (is_array($allowed)) {
+                                if (empty($allowed)) return [];
+                                $query->whereHas('indent.hsn', fn($q)=> $q->whereIn('category_id', $allowed));
+                            }
+                        }
+                        return $query->orderByDesc('booking_date')->pluck('booking_no','id');
+                    })
+                    ->searchable()->preload()->native(false)->required()
+                    ->reactive()
+                    ->afterStateUpdated(function ($state, Set $set) {
+                        // Reset dependent fields when shipment changes
+                        $set('invoice_id', null);
+                        $set('bl_correction_id', null);
+                    })
+                    ->columnSpan(4),
                 Forms\Components\Select::make('invoice_id')
                     ->label('Invoice')
-                    ->options(fn()=> Invoice::query()->latest('id')->pluck('invoice_no','id'))
-                    ->searchable()->preload()->native(false)->required()->columnSpan(4),
+                    ->options(function(Get $get){
+                        $query = Invoice::query()->latest('id');
+                        $shipmentId = $get('shipment_id');
+                        if ($shipmentId) {
+                            $query->where('shipment_id', $shipmentId);
+                        }
+                        $user = Auth::user();
+                        if ($user && !$user->isAdmin()) {
+                            $allowed = \App\Services\DocumentPermissionService::allowedCategoryIds($user);
+                            if (is_array($allowed)) {
+                                if (empty($allowed)) return [];
+                                $query->whereHas('shipment.indent.hsn', fn($q)=> $q->whereIn('category_id', $allowed));
+                            }
+                        }
+                        return $query->with('shipment')->get()->mapWithKeys(function ($inv) {
+                            $label = ($inv->invoice_no ?: ('ID#'.$inv->id))
+                                .' · BKG '.($inv->shipment?->booking_no ?? '-')
+                                .' · $'.(string)($inv->amount ?? '-');
+                            return [$inv->id => $label];
+                        })->toArray();
+                    })
+                    ->searchable()->preload()->native(false)->required()
+                    ->rule(function (Get $get) {
+                        return function (string $attribute, $value, \Closure $fail) use ($get) {
+                            $shipmentId = $get('shipment_id');
+                            if ($shipmentId && $value) {
+                                $ok = Invoice::query()->where('id', $value)->where('shipment_id', $shipmentId)->exists();
+                                if (!$ok) {
+                                    $fail('Selected Invoice does not belong to the chosen Shipment.');
+                                }
+                            }
+                        };
+                    })
+                    ->columnSpan(4),
                 Forms\Components\Select::make('bl_correction_id')
                     ->label('BL')
-                    ->options(fn()=> BlCorrection::query()->latest('id')->pluck('id','id'))
-                    ->searchable()->preload()->native(false)->required()->columnSpan(4),
+                    ->options(function(Get $get){
+                        $query = BlCorrection::query()->latest('id');
+                        $shipmentId = $get('shipment_id');
+                        if ($shipmentId) {
+                            $query->where('shipment_id', $shipmentId);
+                        }
+                        $user = Auth::user();
+                        if ($user && !$user->isAdmin()) {
+                            $allowed = \App\Services\DocumentPermissionService::allowedCategoryIds($user);
+                            if (is_array($allowed)) {
+                                if (empty($allowed)) return [];
+                                $query->whereHas('shipment.indent.hsn', fn($q)=> $q->whereIn('category_id', $allowed));
+                            }
+                        }
+                        return $query->get()->mapWithKeys(function ($bl) {
+                            $label = (($bl->bl_no ?: ('BL#'.$bl->id))).' · BKG '.($bl->booking_no ?? '-')
+                                .' · '.$bl->destination;
+                            return [$bl->id => $label];
+                        })->toArray();
+                    })
+                    ->searchable()->preload()->native(false)->required()
+                    ->rule(function (Get $get) {
+                        return function (string $attribute, $value, \Closure $fail) use ($get) {
+                            $shipmentId = $get('shipment_id');
+                            if ($shipmentId && $value) {
+                                $ok = BlCorrection::query()->where('id', $value)->where('shipment_id', $shipmentId)->exists();
+                                if (!$ok) {
+                                    $fail('Selected BL does not belong to the chosen Shipment.');
+                                }
+                            }
+                        };
+                    })
+                    ->columnSpan(4),
                 Forms\Components\TextInput::make('form6_no')->required()->columnSpan(4),
                 Forms\Components\DatePicker::make('form6_date')->native(false)->required()->columnSpan(4),
                 Forms\Components\TextInput::make('applicant_ref_no')->columnSpan(4),
@@ -330,6 +413,24 @@ class Form6DocumentResource extends Resource
             'create' => Pages\CreateForm6Document::route('/create'),
             'edit' => Pages\EditForm6Document::route('/{record}/edit'),
         ];
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+        $user = Auth::user();
+        if ($user && !$user->isAdmin()) {
+            $allowed = DocumentPermissionService::allowedCategoryIds($user);
+            if (is_array($allowed)) {
+                if (empty($allowed)) return $query->whereRaw('1 = 0');
+                $query = $query->where(function($q) use ($allowed){
+                    $q->whereHas('shipment.indent.hsn', fn($qq)=> $qq->whereIn('category_id', $allowed))
+                      ->orWhereHas('invoice.shipment.indent.hsn', fn($qq)=> $qq->whereIn('category_id', $allowed))
+                      ->orWhereHas('blCorrection.shipment.indent.hsn', fn($qq)=> $qq->whereIn('category_id', $allowed));
+                });
+            }
+        }
+        return $query;
     }
 
     public static function shouldRegisterNavigation(): bool

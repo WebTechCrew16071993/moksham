@@ -228,7 +228,7 @@
                 <div style="margin-bottom: 3px;">({{ number_format((float) $invoice->weight_mt * 1000, 0, '', '') }} Kgs)</div> -->
                 <div style="white-space: pre-line;line-height: 1.2;">{!! nl2br(e($invoice->description)) !!}</div>
             </td>
-            <td class="center border-right" style="padding-top: 10px;vertical-align: top;">${{ number_format((float) $invoice->rate_mt, 2) }}<br>(CIF)</td>
+            <td class="center border-right" style="padding-top: 10px;vertical-align: top;">${{ number_format((float) $invoice->rate_mt, 2) }}<br>{{ $invoice->rate_note }}</td>
             <td class="center" style="padding-top: 10px;vertical-align: top;">${{ number_format((float) $invoice->amount, 2) }}</td>
         </tr>
     </tbody>

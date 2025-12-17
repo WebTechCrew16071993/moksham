@@ -9,6 +9,7 @@ use Filament\Models\Contracts\HasAvatar;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 
 class User extends Authenticatable implements FilamentUser, HasAvatar
@@ -98,5 +99,10 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
     public function documentPermissions(): HasMany
     {
         return $this->hasMany(DocumentPermission::class, 'user_id');
+    }
+
+    public function categories(): BelongsToMany
+    {
+        return $this->belongsToMany(Category::class)->withTimestamps();
     }
 }

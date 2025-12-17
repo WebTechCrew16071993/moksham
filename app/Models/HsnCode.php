@@ -11,7 +11,7 @@ class HsnCode extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'category',
+        'category_id',
         'code',
         'description',
     ];
@@ -19,6 +19,11 @@ class HsnCode extends Model
     public function indents()
     {
         return $this->hasMany(Indent::class, 'hsn_code_id');
+    }
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
     }
 
     protected static function booted(): void

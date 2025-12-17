@@ -20,7 +20,7 @@ class CreateHsnCode extends CreateRecord
     protected function rules(): array
     {
         return [
-            'data.category' => ['required', 'in:Plastic,Metal'],
+            'data.category_id' => ['required', 'exists:categories,id'],
             'data.code' => ['required', 'regex:/^\\d{4,8}$/', 'unique:hsn_codes,code'],
             'data.description' => ['nullable', 'string', 'max:255'],
             'data.is_active' => ['nullable', 'boolean'],

@@ -17,6 +17,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Database\Eloquent\Builder;
 
 class PackingListResource extends Resource
 {
@@ -36,11 +37,26 @@ class PackingListResource extends Resource
 
             Forms\Components\Select::make('shipment_id')
                 ->label('Shipment')
-                ->options(fn() => Shipment::query()
-                    ->whereNotNull('booking_no')
-                    ->where('booking_no', '!=', '0')
-                    ->orderByDesc('booking_date')
-                    ->pluck('booking_no', 'id'))
+                ->options(function () {
+                    $query = Shipment::query()
+                        ->whereNotNull('booking_no')
+                        ->where('booking_no', '!=', '0');
+
+                    $user = Auth::user();
+                    if ($user && !$user->isAdmin()) {
+                        $allowed = DocumentPermissionService::allowedCategoryIds($user);
+                        if (is_array($allowed)) {
+                            if (empty($allowed)) {
+                                return [];
+                            }
+                            $query->whereHas('indent.hsn', function ($q) use ($allowed) {
+                                $q->whereIn('category_id', $allowed);
+                            });
+                        }
+                    }
+
+                    return $query->orderByDesc('booking_date')->pluck('booking_no', 'id');
+                })
                 ->placeholder('Select shipment')
                 ->searchable()
                 ->preload()
@@ -57,10 +73,30 @@ class PackingListResource extends Resource
                     $set('ship_date', $shipment?->booking_date);
                     $set('contact', $shipment?->indent?->consignee_name);
                     $set('phone', $shipment?->indent?->consignee_phone);
+                    // Set Order No to latest invoice number for this shipment (if any)
+                    if ($state) {
+                        $latestInvoiceNo = \App\Models\Invoice::query()
+                            ->where('shipment_id', $state)
+                            ->latest('id')
+                            ->value('invoice_no');
+                        if ($latestInvoiceNo) {
+                            $set('order_no', $latestInvoiceNo);
+                        }
+                    }
                 })
                 ->afterStateHydrated(function (Set $set, $state, $record) {
                     if ($record && $record->shipment) {
                         $set('booking_no', $record->shipment->booking_no);
+                        // Hydrate Order No from latest invoice for the linked shipment if order_no is empty
+                        if (empty($record->order_no)) {
+                            $latestInvoiceNo = \App\Models\Invoice::query()
+                                ->where('shipment_id', $record->shipment_id)
+                                ->latest('id')
+                                ->value('invoice_no');
+                            if ($latestInvoiceNo) {
+                                $set('order_no', $latestInvoiceNo);
+                            }
+                        }
                     }
                 }),
 
@@ -89,7 +125,7 @@ class PackingListResource extends Resource
 
                 // ✅ Editable but auto-filled if left empty
                 Forms\Components\TextInput::make('container_no_summary')
-                    ->label('Containers')
+                    ->label('Container No')
                     ->placeholder('Auto-filled if left empty')
                     ->helperText('If left blank, it will auto-fill from container count and ship type.')
                     ->dehydrated(true)
@@ -298,5 +334,25 @@ class PackingListResource extends Resource
     public static function canDelete($record): bool
     {
         return DocumentPermissionService::canDelete(static::$permissionResource);
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+
+        $user = Auth::user();
+        if ($user && !$user->isAdmin()) {
+            $allowed = DocumentPermissionService::allowedCategoryIds($user);
+            if (is_array($allowed)) {
+                if (empty($allowed)) {
+                    return $query->whereRaw('1 = 0');
+                }
+                $query = $query->whereHas('shipment.indent.hsn', function ($q) use ($allowed) {
+                    $q->whereIn('category_id', $allowed);
+                });
+            }
+        }
+
+        return $query;
     }
 }

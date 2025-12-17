@@ -15,6 +15,8 @@ use Filament\Forms\Set;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Database\Eloquent\Builder;
 
 class InvoiceResource extends Resource
 {
@@ -38,15 +40,40 @@ class InvoiceResource extends Resource
                     Forms\Components\Hidden::make('packing_list_id'),
                     Forms\Components\Select::make('shipment_id')
                         ->label('Shipment (Booking #)')
-                        ->options(fn () => Shipment::query()->orderByDesc('booking_date')->pluck('booking_no', 'id'))
+                        ->options(function () {
+                            $query = Shipment::query();
+                            $user = Auth::user();
+                            if ($user && !$user->isAdmin()) {
+                                $allowed = \App\Services\DocumentPermissionService::allowedCategoryIds($user);
+                                if (is_array($allowed)) {
+                                    if (empty($allowed)) return [];
+                                    $query->whereHas('indent.hsn', fn($q) => $q->whereIn('category_id', $allowed));
+                                }
+                            }
+                            return $query->orderByDesc('booking_date')->pluck('booking_no', 'id');
+                        })
                         ->searchable()->preload()->native(false)
                         ->required()
+                        ->reactive()
+                        ->afterStateUpdated(function ($state, Set $set) {
+                            // Clear BL when shipment changes to avoid mismatches
+                            $set('bl_correction_id', null);
+                        })
                         ->columnSpan(6),
                     Forms\Components\Select::make('bl_correction_id')
                         ->label('BL')
                         ->options(function (Get $get) {
                             $shipmentId = $get('shipment_id');
                             $query = BlCorrection::query()->latest('id');
+                            $user = Auth::user();
+                            if ($user && !$user->isAdmin()) {
+                                $allowed = \App\Services\DocumentPermissionService::allowedCategoryIds($user);
+                                if (is_array($allowed)) {
+                                    $query->whereHas('shipment.indent.hsn', function ($q) use ($allowed) {
+                                        $q->whereIn('category_id', $allowed);
+                                    });
+                                }
+                            }
                             if ($shipmentId) {
                                 $query->where('shipment_id', $shipmentId);
                             }
@@ -59,6 +86,20 @@ class InvoiceResource extends Resource
                         ->required()
                         ->preload()
                         ->native(false)
+                        ->rule(function (Get $get) {
+                            return function (string $attribute, $value, \Closure $fail) use ($get) {
+                                $shipmentId = $get('shipment_id');
+                                if ($shipmentId && $value) {
+                                    $ok = BlCorrection::query()
+                                        ->where('id', $value)
+                                        ->where('shipment_id', $shipmentId)
+                                        ->exists();
+                                    if (!$ok) {
+                                        $fail('Selected BL does not belong to the chosen Shipment.');
+                                    }
+                                }
+                            };
+                        })
                         ->reactive()
                         ->afterStateUpdated(function ($state, Set $set) {
                             $bl = $state ? BlCorrection::find($state) : null;
@@ -82,8 +123,13 @@ class InvoiceResource extends Resource
                         ->searchable()->preload()->native(false)
                         ->nullable()->columnSpan(6),
                     Forms\Components\TextInput::make('no_of_cont')->label('No. of Containers')->nullable()->columnSpan(6),
-                    Forms\Components\TextInput::make('weight_mt')->numeric()->label('Weight (MT)')->nullable()->columnSpan(4),
-                    Forms\Components\TextInput::make('rate_mt')->numeric()->label('Rate / MT (US$)')->nullable()->columnSpan(4),
+                    Forms\Components\TextInput::make('weight_mt')->numeric()->label('Weight (MT)')->nullable()->columnSpan(3),
+                    Forms\Components\TextInput::make('rate_mt')->numeric()->label('Rate / MT (US$)')->nullable()->columnSpan(3),
+                    Forms\Components\TextInput::make('rate_note')
+                        ->label('Rate Note')
+                        ->placeholder('(CIF)')
+                        ->maxLength(50)
+                        ->columnSpan(2),
                     Forms\Components\TextInput::make('amount')->numeric()->label('Amount (US$)')->nullable()->columnSpan(4),
                     Forms\Components\Textarea::make('description')->rows(4)->columnSpanFull(),
                     Forms\Components\TextInput::make('moisture_contain')->label('Moisture Contain')->nullable()->columnSpan(6),
@@ -180,7 +226,51 @@ class InvoiceResource extends Resource
                 ]),
 
                 Forms\Components\RichEditor::make('remarks')->columnSpanFull()->nullable(),
-                Forms\Components\RichEditor::make('terms_conditions')->label('Terms & Conditions')->columnSpanFull()->nullable(),
+                Forms\Components\RichEditor::make('terms_conditions')
+                    ->label('Terms & Conditions')
+                    ->default(function (string $operation) {
+                        if ($operation !== 'create') return null;
+                        return '<ul>'
+                            ."  <li>** All Shipping instruction must be submitted according to the doc's cut off deadline.</li>"
+                            .'  <li>** Complete Packing List must be provided in order to meet AES/ITN and Master BL filing.</li>'
+                            .'  <li>** Late filing fee will be applied if SI is received after the Doc\'s cut off deadline.</li>'
+                            .'  <li>** Doc extension must be requested 24 hrs. prior to SI cut off.</li>'
+                            .'  <li>** Applicable handling fee and rollover fee (per cntr) will be applied by the port for late AES filing.</li>'
+                            .'  <li>** Port is at "NO DOCS NO LOAD" policy.</li>'
+                            .'  <li>** All sailing information is subject to change without notice which may affect cut-off dates.</li>'
+                            .'  <li>Please be advised delivery of loaded units prior to the rail cut-off date specified, may result in early arrival of your units to the ocean terminal storages may incurred.</li>'
+                            .'  <li>** <strong>All dates are estimated and subject to change</strong>.</li>'
+                            .'</ul>'
+                            .'<p><strong>ADDITIONAL APPICABLE CHARGES:</strong></p>'
+                            .'<ul>'
+                            .'  <li>** Rollover fee: $250 per containers, + terminal rehandling as per the line.</li>'
+                            .'  <li>** BL correction fee: $75 per BL after 2 amendments.</li>'
+                            .'  <li>** OBL Courier Fee: Domestic $30.00, International $90.00.</li>'
+                            .'</ul>';
+                    })
+                    ->formatStateUsing(function ($state, \Filament\Forms\Get $get) {
+                        if (filled($state)) return $state;
+                        // Use same default string when empty to ensure visibility on create
+                        return '<ul>'
+                            ."  <li>** All Shipping instruction must be submitted according to the doc's cut off deadline.</li>"
+                            .'  <li>** Complete Packing List must be provided in order to meet AES/ITN and Master BL filing.</li>'
+                            .'  <li>** Late filing fee will be applied if SI is received after the Doc\'s cut off deadline.</li>'
+                            .'  <li>** Doc extension must be requested 24 hrs. prior to SI cut off.</li>'
+                            .'  <li>** Applicable handling fee and rollover fee (per cntr) will be applied by the port for late AES filing.</li>'
+                            .'  <li>** Port is at "NO DOCS NO LOAD" policy.</li>'
+                            .'  <li>** All sailing information is subject to change without notice which may affect cut-off dates.</li>'
+                            .'  <li>Please be advised delivery of loaded units prior to the rail cut-off date specified, may result in early arrival of your units to the ocean terminal storages may incurred.</li>'
+                            .'  <li>** <strong>All dates are estimated and subject to change</strong>.</li>'
+                            .'</ul>'
+                            .'<p><strong>ADDITIONAL APPICABLE CHARGES:</strong></p>'
+                            .'<ul>'
+                            .'  <li>** Rollover fee: $250 per containers, + terminal rehandling as per the line.</li>'
+                            .'  <li>** BL correction fee: $75 per BL after 2 amendments.</li>'
+                            .'  <li>** OBL Courier Fee: Domestic $30.00, International $90.00.</li>'
+                            .'</ul>';
+                    })
+                    ->columnSpanFull()
+                    ->nullable(),
             ]);
     }
 
@@ -243,6 +333,22 @@ class InvoiceResource extends Resource
             'create' => Pages\CreateInvoice::route('/create'),
             'edit' => Pages\EditInvoice::route('/{record}/edit'),
         ];
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+        $user = Auth::user();
+        if ($user && !$user->isAdmin()) {
+            $allowed = DocumentPermissionService::allowedCategoryIds($user);
+            if (is_array($allowed)) {
+                if (empty($allowed)) return $query->whereRaw('1 = 0');
+                $query = $query->whereHas('shipment.indent.hsn', function ($q) use ($allowed) {
+                    $q->whereIn('category_id', $allowed);
+                });
+            }
+        }
+        return $query;
     }
 
     public static function shouldRegisterNavigation(): bool

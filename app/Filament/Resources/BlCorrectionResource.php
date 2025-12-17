@@ -19,6 +19,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Auth;
 use Filament\Notifications\Notification;
+use Illuminate\Database\Eloquent\Builder;
 
 class BlCorrectionResource extends Resource
 {
@@ -37,7 +38,18 @@ class BlCorrectionResource extends Resource
             Section::make('Reference')->columns(12)->schema([
                 Forms\Components\Select::make('shipment_id')
                     ->label('Shipment')
-                    ->options(fn() => Shipment::query()->orderByDesc('booking_date')->pluck('booking_no', 'id'))
+                    ->options(function () {
+                        $query = Shipment::query();
+                        $user = Auth::user();
+                        if ($user && !$user->isAdmin()) {
+                            $allowed = \App\Services\DocumentPermissionService::allowedCategoryIds($user);
+                            if (is_array($allowed)) {
+                                if (empty($allowed)) return [];
+                                $query->whereHas('indent.hsn', fn ($q) => $q->whereIn('category_id', $allowed));
+                            }
+                        }
+                        return $query->orderByDesc('booking_date')->pluck('booking_no', 'id');
+                    })
                     ->required()
                     ->reactive()
                     ->afterStateUpdated(function ($state, $set) {
@@ -336,6 +348,22 @@ class BlCorrectionResource extends Resource
             'create' => Pages\CreateBlCorrection::route('/create'),
             'edit' => Pages\EditBlCorrection::route('/{record}/edit'),
         ];
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+        $user = Auth::user();
+        if ($user && !$user->isAdmin()) {
+            $allowed = DocumentPermissionService::allowedCategoryIds($user);
+            if (is_array($allowed)) {
+                if (empty($allowed)) return $query->whereRaw('1 = 0');
+                $query = $query->whereHas('shipment.indent.hsn', function ($q) use ($allowed) {
+                    $q->whereIn('category_id', $allowed);
+                });
+            }
+        }
+        return $query;
     }
 
     public static function shouldRegisterNavigation(): bool

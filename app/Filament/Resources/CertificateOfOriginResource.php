@@ -12,6 +12,8 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Database\Eloquent\Builder;
 
 class CertificateOfOriginResource extends Resource
 {
@@ -33,7 +35,18 @@ class CertificateOfOriginResource extends Resource
                     ->schema([
                         Forms\Components\Select::make('shipment_id')
                             ->label('Shipment (Booking #)')
-                            ->options(fn () => Shipment::query()->orderByDesc('booking_date')->pluck('booking_no', 'id'))
+                            ->options(function () {
+                                $query = Shipment::query();
+                                $user = Auth::user();
+                                if ($user && !$user->isAdmin()) {
+                                    $allowed = \App\Services\DocumentPermissionService::allowedCategoryIds($user);
+                                    if (is_array($allowed)) {
+                                        if (empty($allowed)) return [];
+                                        $query->whereHas('indent.hsn', fn($q) => $q->whereIn('category_id', $allowed));
+                                    }
+                                }
+                                return $query->orderByDesc('booking_date')->pluck('booking_no', 'id');
+                            })
                             ->searchable()->preload()->native(false)
                             ->required()
                             ->default(fn() => request()->has('shipment_id') ? (int) request('shipment_id') : null)
@@ -417,5 +430,21 @@ class CertificateOfOriginResource extends Resource
             'create' => Pages\CreateCertificateOfOrigin::route('/create'),
             'edit' => Pages\EditCertificateOfOrigin::route('/{record}/edit'),
         ];
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+        $user = Auth::user();
+        if ($user && !$user->isAdmin()) {
+            $allowed = \App\Services\DocumentPermissionService::allowedCategoryIds($user);
+            if (is_array($allowed)) {
+                if (empty($allowed)) return $query->whereRaw('1 = 0');
+                $query = $query->whereHas('shipment.indent.hsn', function ($q) use ($allowed) {
+                    $q->whereIn('category_id', $allowed);
+                });
+            }
+        }
+        return $query;
     }
 }

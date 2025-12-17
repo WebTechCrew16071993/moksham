@@ -51,7 +51,7 @@ class EditIndent extends EditRecord
             $h = HsnCode::find($data['hsn_code_id']);
             if ($h) {
                 $data['hsn_code'] = $h->code;
-                $data['hsn_category'] = $h->category;
+                $data['hsn_category'] = $h->category?->name;
                 $data['hsn_description'] = $h->description;
             }
         }

@@ -25,6 +25,7 @@ class Invoice extends Model
         'description',
         'moisture_contain',
         'rate_mt',
+        'rate_note',
         'amount',
         'payment_terms',
         'advance',

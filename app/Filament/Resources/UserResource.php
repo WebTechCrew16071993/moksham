@@ -150,6 +150,21 @@ class UserResource extends Resource
                         Forms\Components\Toggle::make('status')
                             ->label('Active')
                             ->default(true),
+
+                        Forms\Components\Select::make('categories')
+                            ->label('Categories')
+                            ->relationship('categories', 'name', modifyQueryUsing: function ($query) {
+                                // Avoid ambiguous deleted_at when joining pivot that also has deleted_at
+                                return $query
+                                    ->withoutGlobalScopes([SoftDeletingScope::class])
+                                    ->whereNull('categories.deleted_at');
+                            })
+                            ->multiple()
+                            ->preload()
+                            ->searchable()
+                            ->visible(fn (Forms\Get $get): bool => ($get('role') === 'user'))
+                            ->required(fn (Forms\Get $get): bool => ($get('role') === 'user'))
+                            ->helperText('Visible and manageable documents will be restricted to these categories for this user.'),
                     ])->columns(2),
 
                 // -----------------------------

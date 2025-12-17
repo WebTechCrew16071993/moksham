@@ -56,4 +56,20 @@ class DocumentPermissionService
     {
         return self::can($resource, 'delete', $user);
     }
+
+    /**
+     * Return the set of category IDs the user is allowed to see. Admins get null (meaning all).
+     * If the user has no categories assigned, return an empty array.
+     */
+    public static function allowedCategoryIds(?User $user = null): ?array
+    {
+        $user = $user ?? Auth::user();
+        if (!$user) {
+            return [];
+        }
+        if (method_exists($user, 'isAdmin') && $user->isAdmin()) {
+            return null; // all categories
+        }
+        return $user->categories()->pluck('categories.id')->all();
+    }
 }

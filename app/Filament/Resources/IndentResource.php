@@ -15,6 +15,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
 class IndentResource extends Resource
@@ -83,7 +84,20 @@ class IndentResource extends Resource
                             ->columnSpan(12),
                         Forms\Components\Select::make('hsn_code_id')
                             ->label('HS Code')
-                            ->options(fn () => HsnCode::query()->orderBy('code')->pluck('code', 'id'))
+                            ->options(function () {
+                                $query = HsnCode::query();
+                                $user = \Illuminate\Support\Facades\Auth::user();
+                                if ($user && !$user->isAdmin()) {
+                                    $allowed = \App\Services\DocumentPermissionService::allowedCategoryIds($user);
+                                    if (is_array($allowed)) {
+                                        if (empty($allowed)) {
+                                            return [];
+                                        }
+                                        $query->whereIn('category_id', $allowed);
+                                    }
+                                }
+                                return $query->orderBy('code')->pluck('code', 'id');
+                            })
                             ->searchable()
                             ->preload()
                             ->native(false)
@@ -158,16 +172,36 @@ class IndentResource extends Resource
                     ->schema([
                         Forms\Components\RichEditor::make('other_terms')
                             ->label('Other Terms')
+                            ->default('<ol>'
+                                .'<li>This Agreement shall be governed by and construed in accordance with the laws of United States of America.</li>'
+                                .'<li>All amounts and commercial terms as specified in this indent shall prevail unless mutually amended in writing.</li>'
+                                .'</ol>')
                             ->columnSpan(12)
                             ->disableToolbarButtons(['attachFiles','codeBlock'])
                             ->required(),
                         Forms\Components\RichEditor::make('claims')
                             ->label('Claims')
+                            ->default('<ol>'
+                                .'<li>In case of short weight claim, the claims should be forwarded in writing along with weightment slips of loaded container and empty container chassis of the truck. Note that weightment slips must be of independent weigh bridge and not mills weigh bridge.</li>'
+                                .'<li>If there is any delay for any reason from the shipping line supplier / Shipper will held no responsible.</li>'
+                                ."<li>For any moisture or out throw claim we will need unloading pics with the container numbers displayed and bales coming out of the container.</li>"
+                                ."<li>If there is no evidence then there would be if shipping line splits the container after loading supplier / shipper will not be responsible.</li>"
+                                ."<li>For weight short we will need port computerized weight slips and mill weight slips to check the shortage.</li>"
+                                ."<li>Any additional War Risk surcharge or any such levies imposed by shipping company will be to buyers account.</li>"
+                                ."<li>All agreements are contingent upon strikes, lock outs, delay of the carrier or other delay sun avoidable or beyond our control.</li>"
+                                ."<li>Any claim discrepancy shall be adjusted on the next purchase order invoice.</li>"
+                                ."<li>Shipments must be executed within 40 days from the date of the indent.</li>"
+                                ."<li>This Agreement shall be governed by and construed in accordance with the laws of United States of America.</li>"
+                                .'</ol>')
                             ->columnSpan(12)
                             ->disableToolbarButtons(['attachFiles','codeBlock'])
                             ->required(),
                         Forms\Components\RichEditor::make('remarks')
                             ->label('Remarks')
+                            ->default('<ol>'
+                                .'<li>This contract is between shipper MOKSHAM EXPORT IMPORT LLC and Buyer.</li>'
+                                .'<li>In case of any variation in material quality, kindly ensure to take detailed container unloading pictures and the moisture meter reading pictures in case of any moisture.</li>'
+                                .'</ol>')
                             ->columnSpan(12)
                             ->disableToolbarButtons(['attachFiles','codeBlock'])
                             ->required(),
@@ -294,6 +328,27 @@ class IndentResource extends Resource
             'create' => Pages\CreateIndent::route('/create'),
             'edit' => Pages\EditIndent::route('/{record}/edit'),
         ];
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+
+        $user = Auth::user();
+        if ($user && !$user->isAdmin()) {
+            $allowed = \App\Services\DocumentPermissionService::allowedCategoryIds($user);
+            if (is_array($allowed)) {
+                if (empty($allowed)) {
+                    // No categories assigned -> show no records
+                    return $query->whereRaw('1 = 0');
+                }
+                $query = $query->whereHas('hsn', function ($q) use ($allowed) {
+                    $q->whereIn('category_id', $allowed);
+                });
+            }
+        }
+
+        return $query;
     }
 
     public static function shouldRegisterNavigation(): bool
