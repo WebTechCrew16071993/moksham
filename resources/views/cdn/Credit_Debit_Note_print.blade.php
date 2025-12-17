@@ -40,7 +40,7 @@
         .font-bold { font-weight: bold; }
         .text-center { text-align: center; }
         .text-right { text-align: right; }
-        .text-red { color: red; }
+        .text-red { color: #dd2b1c; }
         .uppercase { text-transform: uppercase; }
 
         /* Main Table Styling */

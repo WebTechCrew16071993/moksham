@@ -35,7 +35,7 @@
         
         .header-bg { background-color: #e6e6e6; font-weight: bold; text-align: center; }
         
-        .text-red { color: red !important; }
+        .text-red { color: #dd2b1c !important; }
         .text-blue { color: #0070c0 !important; }
         .italic { font-style: italic; }
         

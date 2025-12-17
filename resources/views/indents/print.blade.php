@@ -10,17 +10,17 @@
         }
         body {
             font-family: "Times New Roman", Times, serif;
-            font-size: 12px !important; /* Set default font size to 12px */
+            font-size: 14px !important; /* Set default font size to 12px */
             line-height: 1.15;
         }
         
         /* Header & Footer Positioning */
         header {
             position: fixed;
-            top: -80px;
+            top: -70px;
             left: 0;
             right: 0;
-            height: 90px;
+            height: 120px;
             text-align: center;
         }
         footer {
@@ -31,16 +31,16 @@
             right: 0;
             height: 90px;
             text-align: center;
-            font-size: 12px;
+            font-size: 14px;
             padding-bottom: 5px;
         }
 
         /* Helper Classes */
         .font-bold { font-weight: bold; }
         .uppercase { text-transform: uppercase; }
-        .text-red { color: #c00; }
+        .text-red { color: #dd2b1c; }
 
-        .text-red-in b, .text-red-in strong { color: #c00; }
+        .text-red-in b, .text-red-in strong { color: #dd2b1c; font-size:16px !important; }
         .underline { text-decoration: underline; }
         
         /* Main Grid Table */
@@ -48,19 +48,19 @@
             width: 100%;
             border-collapse: collapse;
             margin-top: 5px;
-            font-size: 12px !important;
+            font-size: 14px !important;
         }
         table.grid > tbody > tr > th,
         table.grid > tbody > tr > td {
             border: 1px solid #000;
-            padding: 5px 8px; /* Adjusted padding for tighter look */
+            padding: 2px 8px; /* Adjusted padding for tighter look */
             vertical-align: top;
             text-align: left;
         }
         
         /* Column Widths for the main data section */
-        .col-label { width: 30%; } /* Adjusted to match image proportion */
-        .col-value { width: 70%; }
+        .col-label { padding: 4px 8px !important; width: 30%; }
+        .col-value { padding: 4px 8px 4px 12px !important; width: 70%; }
 
         /* Nested Tables for Split Rows (Shipper/Consignee) 
            This ensures the vertical divider is exactly in the middle (50%) 
@@ -87,7 +87,7 @@
             font-weight: bold;
             margin-top: 15px;
             margin-bottom: 5px;
-            font-size: 12px !important;
+            font-size: 14px !important;
             text-decoration: underline;
         }
         
@@ -99,9 +99,58 @@
         .signature-table td { border: none; vertical-align: bottom; }
 
         .inner-m0 > * {
+            padding-left:18px !important;
             margin: 0 !important;
             margin-top: 2px !important;
             width: 100% !important;
+        }
+
+        .inner-ul3 ol,
+        .inner-ul2 ol,
+        .inner-ul1 ol {
+            counter-reset: item;
+            list-style: none !important;
+            padding-left: 0 !important;   
+        }
+
+        .inner-ul3 li,
+        .inner-ul2 li,
+        .inner-ul1 li {
+            counter-increment: item;
+            position: relative;
+            padding-left: 24px;
+            list-style: none !important;   
+            padding-bottom: 2px;
+        }
+
+        .inner-ul3 li,
+        .inner-ul2 li {
+            padding-left: 26px;
+            padding-bottom: 5px;
+        }
+
+        .inner-ul1 li::before {
+            content: "(" counter(item) "). ";
+            position: absolute;
+            left: 0;
+        }
+
+        .inner-ul2 li::before {
+            content: counter(item) "). ";
+            position: absolute;
+            left: 0;
+        }
+
+        .inner-ul3 li::before {
+            content: counter(item) ". ";
+            position: absolute;
+            left: 0;
+        }
+
+        .page-number {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
         }
     </style>
 </head>
@@ -109,7 +158,7 @@
 
 <header>
     <div>
-        <img src="{{ public_path('images/moksham-logo.png') }}" alt="Moksham Logo" style="height: 55px;">
+        <img src="{{ public_path('images/moksham-logo.png') }}" alt="Moksham Logo" style="height: 66px;object-fit: contain;">
     </div>
 </header>
 
@@ -118,7 +167,7 @@
 <div class="content">
     
     <div style="margin-bottom: 15px;">
-        <div style="margin-bottom: 3px;">Indent No.: {{ $indent->indent_no }}</div>
+        <div style="margin-bottom: 0px;">Indent No.: {{ $indent->indent_no }}</div>
         <div>Date: {{ optional($indent->indent_date)->format('m/d/Y') }}</div>
     </div>
 
@@ -134,14 +183,14 @@
         Kind Attn. : <span class="font-bold">{{ $indent->kind_attention }}</span>
     </div>
 
-    <p style="text-align: justify; margin-top: 0;">
+    <p style="text-align: justify; margin-top: 0;margin-bottom: 10px;">
         Dear Sir, <br />
         Reference to our discussion and confirmation did {{ optional($indent->indent_date)->format('m/d/Y') }},
         we are pleased to confirm below order <br /> for M/s, <strong>{{ $indent->consignee_name }}</strong>,
-        {{ $indent->consignee_city }}, {{ $indent->consignee_state }}, {{ $indent->consignee_country }}.
+        {{ $indent->consignee_city }}, {{ $indent->consignee_state }}, <span style="text-transform: uppercase;">{{ $indent->consignee_country }}.</span> 
     </p>
 
-    <table class="grid">
+    <table class="grid grid2">
         <tr>
             <td class="col-label">Quality</td>
             <td class="col-value">
@@ -191,13 +240,13 @@
         </tr>
         
         <tr>
-            <td>
+            <td style="padding: 8px;">
                 <div class="underline font-bold" style="margin-bottom: 2px;">Shipper</div>
                 <div class="uppercase">{{ $indent->shipper_name }}</div>
                 <div>{{ $indent->shipper_address }}</div>
                 <div>{{ $indent->shipper_city }} {{ $indent->shipper_zip }} {{ $indent->shipper_country }}.</div>
             </td>
-            <td>
+            <td style="padding: 8px 8px 8px 12px;">
                 <div class="underline font-bold" style="margin-bottom: 2px;">Consignee / Invoice</div>
                 <div class="font-bold uppercase">{{ $indent->consignee_name }}</div>
                 <div>{{ $indent->consignee_address }},</div>
@@ -220,7 +269,7 @@
         </tr>
 
         <tr>
-            <td>
+            <td style="padding: 8px;">
                 <div class="underline font-bold" style="margin-bottom: 2px;">Shipping Bank</div>
                 <div class="uppercase">{{ $indent->shipper_bank_name }}</div>
                 <div>{{ $indent->shipper_bank_address }}</div>
@@ -231,7 +280,7 @@
                     <div>ROUTING NO. : {{ $indent->shipper_bank_routing_number }}</div>
                 @endif
             </td>
-            <td>
+            <td style="padding: 8px 8px 8px 12px;">
                 <div class="underline font-bold" style="margin-bottom: 2px;">Consignee Bank</div>
                 <div class="uppercase">{{ $indent->consignee_bank_name }}</div>
                 <div>{{ $indent->consignee_bank_address }}</div>
@@ -250,32 +299,33 @@
         </tr>
     </table>
 
-    <div style="margin-top: 10px; position: relative;">
+    <div style="margin-top: 10px; padding-left: 8px; position: relative;">
         <div style="margin:0;" class="font-bold">OTHER TERMS :</div>
-        <div class="text-red-in inner-m0" style="margin: 0px;">{!! $indent->other_terms !!}</div> 
-        <div style="text-align: right; margin-top: 10px;">(Page 01)</div>
+        <div class="text-red-in inner-m0 inner-ul1" style="margin: 0px;">{!! $indent->other_terms !!}</div> 
+        
     </div>
+    <div class="page-number" style="text-align: right;">(Page 01)</div>
 
     <div style="page-break-before: always;"></div>
 
     <div style="margin-top: 10px; margin-bottom: 20px; width: 100%;">
-        <div style="float: left; width: 100%;font-size: 14px !important;">This Agreement shall be governed by and construed in accordance with the laws of United States of America.</div>
+        <div style="float: left; width: 100%;font-size: 15px !important;line-height: 1.25;font-family: Arial, sans-serif !important;">This Agreement shall be governed by and construed in accordance with the laws of United States <br /> of America.</div>
     </div>
-    <div style="text-align: right;margin-top: 10px;margin-bottom: 5px;">Date : {{ optional($indent->indent_date)->format('m/d/Y') }}</div>
+    <div style="text-align: right;margin-top: 10px;margin-bottom: 15px;">Date : {{ optional($indent->indent_date)->format('m/d/Y') }}</div>
 
-    <div>
+    <div style="font-size:14px !important;">
         <div class="font-bold" style="margin-bottom: 2px;">Claim :</div>
-        <div class="inner-m0" style="margin-left: 0px;">{!! $indent->claims !!}</div>
+        <div class="inner-m0 inner-ul2" style="margin-left: 0px;">{!! $indent->claims !!}</div>
     </div>
 
-    <div style="margin-top: 15px;">
-        <div class="font-bold" style="margin: 0px;">Remarks :</div>
-        <div class="inner-m0" style="margin-left: 0px;">{!! $indent->remarks !!}</div>
+    <div style="margin-top: 80px;">
+        <div class="font-bold" style="margin-bottom: 2px;">Remarks :</div>
+        <div class="inner-m0 inner-ul3" style="margin-left: 0px;">{!! $indent->remarks !!}</div>
     </div>
 
     <table class="signature-table">
         <tr>
-            <td style="width: 50%; text-align: left;">
+            <td style="width: 50%; text-align: left;vertical-align: bottom;">
                 <div style="margin-bottom: 50px;">Thanking You Yours Sincerely,</div>
                 
                 @if($setting?->company_signed_logo)
@@ -285,19 +335,19 @@
                 @endif
                 <div style="border-top: 1px solid transparent;">Authorized Sign. of Indenter / Shipper</div>
             </td>
-            <td style="width: 50%; text-align: right;">
+            <td style="width: 50%; text-align: right; vertical-align: bottom;">
                 @if($indent->consignee_signature_path)
                     <div style="margin-bottom: 5px;">
                         <img src="{{ public_path('storage/'.ltrim($indent->consignee_signature_path, '/')) }}" alt="consignee signature" height="60">
                     </div>
                 @else
                     <div style="height: 60px;"></div> @endif
-                <div style="float: right; width: auto;">Authorized Sign. of Consignee</div>
+                <div style="text-align: right; width: 100%;display:block">Authorized Sign. of Consignee</div>
             </td>
         </tr>
     </table>
-    
-    <div style="text-align: right; margin-top: 20px;">(Page 02)</div>
+
+    <div class="page-number" style="text-align: right;">(Page 02)</div>
 
 </div>
 
