@@ -49,10 +49,9 @@
                     [pf('email')]: { required: true, email: true, maxlength: 255 },
                     [pf('phone_number')]: {
                         required: true,
-                        minlength: 6,
+                        minlength: 10,
                         maxlength: 20,
-                        // allow digits, spaces, plus, hyphen, parentheses
-                        pattern: /^[0-9+()\s-]+$/,
+                        digits: true,
                     },
                     [pf('profile_photo')]: { required: true },
                 },
@@ -118,6 +117,40 @@
                     }
                 }
             });
+            // Refresh header avatar after Livewire profile update
+            const refreshAvatar = () => {
+                const selectors = [
+                    '[data-header-avatar] img',
+                    '.fi-user-avatar img',
+                    '.filament-user-avatar img',
+                    '.fi-dropdown-user-avatar img',
+                ];
+                const imgs = document.querySelectorAll(selectors.join(','));
+                imgs.forEach(img => {
+                    const base = img.src.split('?')[0];
+                    img.src = `${base}?t=${Date.now()}`;
+                });
+            };
+
+            window.addEventListener('livewire:load', () => {
+                if (window.Livewire && typeof window.Livewire.on === 'function') {
+                    window.Livewire.on('profile-updated', () => {
+                        setTimeout(refreshAvatar, 300);
+                    });
+                }
+            });
+
+            // Enforce digits-only while typing in phone number field
+            const phoneSelector = `[name="${pf('phone_number')}"]`;
+            const phoneInput = document.querySelector(phoneSelector);
+            if (phoneInput) {
+                phoneInput.addEventListener('input', (e) => {
+                    const digits = e.target.value.replace(/\D+/g, '');
+                    if (e.target.value !== digits) {
+                        e.target.value = digits;
+                    }
+                });
+            }
         });
     </script>
     <style>
@@ -125,5 +158,9 @@
         .fi-error-text { color: #dc2626; font-size: 0.875rem; margin-top: 0.25rem; display: block; }
         /* Highlight invalid inputs */
         .fi-error-input { border-color: #ef4444 !important; box-shadow: 0 0 0 1px #ef4444 inset; }
+        /* Hide number input spinners (phone field) */
+        input[type=number]::-webkit-outer-spin-button,
+        input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type=number] { -moz-appearance: textfield; }
     </style>
 @endpush

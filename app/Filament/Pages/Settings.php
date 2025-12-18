@@ -61,12 +61,14 @@ class Settings extends Page implements HasForms
                             Forms\Components\TextInput::make('email')
                                 ->email()
                                 ->required()
+                                ->readOnly(fn () => ! Auth::user()?->isAdmin())
                                 ->rules(['email', 'required', 'max:255', 'unique:users,email,' . Auth::id()])
                                 ->maxLength(255),
                             Forms\Components\TextInput::make('phone_number')
                                 ->label('Phone Number')
                                 ->required()
-                                ->tel()
+                                ->numeric()
+                                ->rules(['required', 'digits_between:10,20'])
                                 ->maxLength(20),
                             FileUpload::make('profile_photo')
                                 ->label('Profile Photo')
@@ -119,7 +121,8 @@ class Settings extends Page implements HasForms
 
         $user->fill([
             'name' => $data['name'] ?? $user->name,
-            'email' => $data['email'],
+            // Admin can change email, non-admin keeps existing email
+            'email' => Auth::user()?->isAdmin() ? ($data['email'] ?? $user->email) : $user->email,
             'phone_number' => $data['phone_number'],
             'profile_photo' => $data['profile_photo'],
         ])->save();
@@ -128,6 +131,9 @@ class Settings extends Page implements HasForms
             ->title('Profile updated')
             ->success()
             ->send();
+
+        // Notify frontend to refresh header avatar instantly
+        $this->dispatch('profile-updated');
     }
 
     public function changePassword(): void

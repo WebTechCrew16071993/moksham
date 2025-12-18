@@ -12,6 +12,7 @@ use Filament\Tables\Table;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Filters\TrashedFilter;
+use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Auth;
@@ -232,7 +233,7 @@ class UserResource extends Resource
                             ->extraAttributes(['class' => 'px-2 pb-2 text-xs font-medium text-gray-500 select-none'])
                             ->schema([
                                 Forms\Components\Placeholder::make('')->columnSpan(4),
-                                Forms\Components\Placeholder::make('view')->columnSpan(4)->extraAttributes(['class' => 'text-center']),
+                                Forms\Components\Placeholder::make('list')->columnSpan(4)->extraAttributes(['class' => 'text-center']),
                                 Forms\Components\Placeholder::make('add')->columnSpan(4)->extraAttributes(['class' => 'text-center']),
                                 Forms\Components\Placeholder::make('edit')->columnSpan(4)->extraAttributes(['class' => 'text-center']),
                                 Forms\Components\Placeholder::make('delete')->columnSpan(4)->extraAttributes(['class' => 'text-center']),
@@ -268,28 +269,70 @@ class UserResource extends Resource
                                 // ----- VIEW -----
                                 Forms\Components\Group::make()
                                     ->schema([
-                                        Forms\Components\Toggle::make('can_view')->hiddenLabel(),
+                                        Forms\Components\Toggle::make('can_view')
+                                            ->hiddenLabel()
+                                            ->reactive()
+                                            ->afterStateUpdated(function ($state, Forms\Set $set, Forms\Get $get) {
+                                                if (!$state) {
+                                                    $hasAny = ($get('can_create') ?? false)
+                                                        || ($get('can_update') ?? false)
+                                                        || ($get('can_delete') ?? false);
+                                                    if ($hasAny) {
+                                                        // Keep list enabled if any other permission is on
+                                                        $set('can_view', true);
+                                                        Notification::make()
+                                                            ->title('List cannot be disabled')
+                                                            ->body('At least one of Add, Edit, or Delete is enabled. Disable them first to turn off List.')
+                                                            ->warning()
+                                                            ->send();
+                                                    }
+                                                }
+                                            }),
                                     ])
                                     ->columnSpan(4),
 
                                 // ----- ADD -----
                                 Forms\Components\Group::make()
                                     ->schema([
-                                        Forms\Components\Toggle::make('can_create')->hiddenLabel(),
+                                        Forms\Components\Toggle::make('can_create')
+                                            ->hiddenLabel()
+                                            ->reactive()
+                                            ->afterStateUpdated(function ($state, Forms\Set $set) {
+                                                if ($state) {
+                                                    // Enabling add requires list
+                                                    $set('can_view', true);
+                                                }
+                                            }),
                                     ])
                                     ->columnSpan(4),
 
                                 // ----- UPDATE -----
                                 Forms\Components\Group::make()
                                     ->schema([
-                                        Forms\Components\Toggle::make('can_update')->hiddenLabel(),
+                                        Forms\Components\Toggle::make('can_update')
+                                            ->hiddenLabel()
+                                            ->reactive()
+                                            ->afterStateUpdated(function ($state, Forms\Set $set) {
+                                                if ($state) {
+                                                    // Enabling edit requires list
+                                                    $set('can_view', true);
+                                                }
+                                            }),
                                     ])
                                     ->columnSpan(4),
 
                                 // ----- DELETE -----
                                 Forms\Components\Group::make()
                                     ->schema([
-                                        Forms\Components\Toggle::make('can_delete')->hiddenLabel(),
+                                        Forms\Components\Toggle::make('can_delete')
+                                            ->hiddenLabel()
+                                            ->reactive()
+                                            ->afterStateUpdated(function ($state, Forms\Set $set) {
+                                                if ($state) {
+                                                    // Enabling delete requires list
+                                                    $set('can_view', true);
+                                                }
+                                            }),
                                     ])
                                     ->columnSpan(4),
 

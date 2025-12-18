@@ -51,6 +51,21 @@ class UserActivityResource extends Resource
                         return self::resolveSubjectUrl($record);
                     })
                     ->sortable(),
+                Tables\Columns\TextColumn::make('description')
+                    ->label('Description')
+                    ->formatStateUsing(function ($state, $record) {
+                        if ($state) {
+                            return $state;
+                        }
+                        $a = (string) ($record->action ?? '');
+                        if ($a === '') return '—';
+                        if (str_contains($a, 'created')) return 'Created';
+                        if (str_contains($a, 'updated')) return 'Updated';
+                        if (str_contains($a, 'deleted')) return 'Deleted';
+                        if (str_starts_with($a, 'permissions')) return 'Permissions updated';
+                        return $a;
+                    })
+                    ->wrap(),
                 // Tables\Columns\TextColumn::make('changes')
                 //     ->label('Changes')
                 //     ->formatStateUsing(function ($state) {
@@ -89,6 +104,7 @@ class UserActivityResource extends Resource
                 Tables\Columns\TextColumn::make('created_at')->dateTime()->label('When')->sortable(),
             ])
             ->filters([])
+            ->defaultSort('created_at', 'desc')
             ->modifyQueryUsing(function (Builder $query) {
                 // Show only activities performed by users (exclude admin actors)
                 $query->whereHas('actor', function ($q) {

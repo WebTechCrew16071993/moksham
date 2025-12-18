@@ -17,6 +17,7 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use App\Filament\Pages\Auth\Login as CustomLoginPage;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -30,7 +31,7 @@ class AdminPanelProvider extends PanelProvider
             ->brandLogo(asset('images/moksham-logo.png'))
             ->brandLogoHeight('48px')
             ->favicon(asset('images/favicon.png'))
-            ->login()
+            ->login(CustomLoginPage::class)
             ->colors([
                 'primary' => Color::Amber,
             ])
@@ -44,6 +45,10 @@ class AdminPanelProvider extends PanelProvider
                 // \App\Filament\Widgets\IndentsOverview::class,
                 // \App\Filament\Widgets\DocumentsOverview::class,
             ])
+            ->renderHook(
+                'panels::body.end',
+                fn (): string => view('filament.custom-styles')->render(),
+            )
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
