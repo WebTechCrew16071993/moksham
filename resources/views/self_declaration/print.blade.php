@@ -19,17 +19,17 @@
     <meta charset="utf-8">
     <title>Self-Declaration Cum Undertaking Certificate</title>
     <style>
-        @page { margin: 50px 60px; }
+        @page { margin: 60px 60px; }
 
         * {
-            font-size: 12px;
+            font-size: 14px;
         }
 
         body {
             font-family: "Times New Roman", Times, serif;
-            font-size: 12px !important;
+            font-size: 14px !important;
             color: #000;
-            line-height: 1.3;
+            line-height: 1.15;
         }
 
         /* Table Styling */
@@ -122,7 +122,7 @@
     <div class="main-title">Self-Declaration Cum Undertaking Certificate</div>
 
     {{-- TOP SECTION --}}
-    <table style="border: none; margin-bottom: 15px;">
+    <table style="border: none; margin-bottom: 25px;">
         <tr>
             <td style="border: none; padding: 0 5px 0 0; width: 50%;">
                 <table style="margin-bottom: 10px; width: 100%;">
@@ -196,15 +196,15 @@
         </tr>
     </table>
 
-    <div class="margin-bottom:15px">
+    <div class="margin-bottom:25px">
     <table>
         <tr>
             <td colspan="3" class="bold">Details of Import :</td>
         </tr>
         <tr>
-            <th width="10%" class="text-center">Sr. No.</th>
-            <th width="70%" class="text-center">Description of Goods</th>
-            <th width="20%" class="text-center">Total Quantity</th>
+            <th class="text-center" style="width:50px !important">Sr. No.</th>
+            <th class="text-center">Description of Goods</th>
+            <th class="text-center" style="width:160px !important">Total Quantity</th>
         </tr>
         <tr>
             <td class="text-center">01</td>
@@ -214,17 +214,17 @@
     </table>
     </div>
 
-    <table style="border: none; margin-bottom: 15px;">
+    <table style="border: none; margin-bottom: 20px;margin-top:15px;">
         <tr>
-            <td style="border: none; padding: 10px 10px 0 0; width: 50%;">
+            <td style="border: none; padding: 10px 15px 0 0; width: 50%;">
                 <table>
                     <tr>
                         <td colspan="3" class="bold">Container Numbers :</td>
                     </tr>
                     <tr>
-                        <th width="15%" class="text-center">Sr. No.</th>
-                        <th width="50%" class="bold">Container Numbers</th>
-                        <th width="35%" class="text-center bold">Quantity</th>
+                        <th class="text-center" style="width:50px !important">Sr. No.</th>
+                        <th class="bold">Container Numbers</th>
+                        <th class="text-center bold" style="width:100px !important">Quantity</th>
                     </tr>
                     @for($i = 0; $i < 6; $i++)
                         <tr>
@@ -235,15 +235,15 @@
                     @endfor
                 </table>
             </td>
-            <td style="border: none; padding: 10px 0 0 10px; width: 50%;">
+            <td style="border: none; padding: 10px 0 0 15px; width: 50%;">
                 <table>
                     <tr>
                         <td colspan="3" class="bold">Container Numbers :</td>
                     </tr>
                     <tr>
-                        <th width="15%" class="text-center">Sr. No.</th>
-                        <th width="50%" class="bold">Container Numbers</th>
-                        <th width="35%" class="text-center bold">Quantity</th>
+                        <th class="text-center" style="width:50px !important">Sr. No.</th>
+                        <th class="bold">Container Numbers</th>
+                        <th class="text-center bold" style="width:100px !important">Quantity</th>
                     </tr>
                     @for($i = 0; $i < 6; $i++)
                         <tr>
@@ -258,26 +258,26 @@
     </table>
      
     {{-- CERTIFICATION TEXT --}}
-    <div style="margin-top: 10px;font-size:12px;">
+    <div style="margin-top: 10px;font-size:14px;">
         After due inspection i/we hereby certify that
     </div>
 
     <table class="cert-table" style="margin:5px 0 0 0;">
         <tr>
-            <td class="roman-col">V.</td>
-            <td>The consignment is actually waste paper as per the internationally acceptable parameters for such material.</td>
+            <td style="padding-bottom: 1px;padding-top:0;" class="roman-col">V.</td>
+            <td style="padding-bottom: 1px;padding-top:0;">The consignment is actually waste paper as per the internationally acceptable parameters for such material.</td>
         </tr>
         <tr>
-            <td class="roman-col">VI.</td>
-            <td>There is no putrefiable organic matter in this consignment.</td>
+            <td style="padding-bottom: 1px;padding-top:0;" class="roman-col">VI.</td>
+            <td style="padding-bottom: 1px;padding-top:0;">There is no putrefiable organic matter in this consignment.</td>
         </tr>
         <tr>
-            <td class="roman-col">VII.</td>
-            <td>The approximate content of non paper material is less than 5%.</td>
+            <td style="padding-bottom: 1px;padding-top:0;" class="roman-col">VII.</td>
+            <td style="padding-bottom: 1px;padding-top:0;">The approximate content of non paper material is less than 5%.</td>
         </tr>
         <tr>
-            <td class="roman-col">VIII.</td>
-            <td>No municipal solid waste or Hazardous waste is part of this consignment.</td>
+            <td style="padding-bottom: 0px;padding-top:0;" class="roman-col">VIII.</td>
+            <td style="padding-bottom: 0px;padding-top:0;">No municipal solid waste or Hazardous waste is part of this consignment.</td>
         </tr>
     </table>
 
@@ -290,8 +290,9 @@
         {{ $setting->company_signature_text ?? $setting->company_name ?? 'MOKSHAM EXPORT IMPORT LLC.' }}
     </div>
 
-    <div>
-        <b>DATE:</b> {{ \Illuminate\Support\Carbon::parse($doc->issue_date ?? now())->format('d-M-y') }}
+    <div style="position: fixed; bottom: 60px; left: 0px;font-weight: normal;" class="date-block">
+        <b>DATE:</b> 
+        {{ \Illuminate\Support\Carbon::parse($doc->issue_date ?? now())->format('d-M-y') }}
     </div>
 
 </body>

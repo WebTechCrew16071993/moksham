@@ -44,18 +44,18 @@
     <meta charset="utf-8">
     <title>Bill of Exchange</title>
     <style>
-        @page { margin: 60px; }
+        @page { margin: 100px 60px; }
         
         body { 
             font-family: 'Times New Roman', serif; 
-            font-size: 13px !important; 
+            font-size: 15px !important; 
             color: #000; 
             line-height: 1.15;
         }
 
         /* The main outer border box */
         .box { 
-            border: 2px solid #000; 
+            border: 1px solid #000; 
             padding: 25px; 
             min-height: 400px;
             max-width:600px;
@@ -124,10 +124,10 @@
                             <td><span class="bold">REF. No. :</span> {{ $boe->ref_no }}</td>
                         </tr>
                         <tr>
-                            <td style="padding-top: 4px;"><span class="bold">DATE :</span> {{ \Illuminate\Support\Carbon::parse($boe->issue_date ?? now())->format('d/m/Y') }}</td>
+                            <td style="padding-top: 2px;"><span class="bold">DATE :</span> {{ \Illuminate\Support\Carbon::parse($boe->issue_date ?? now())->format('d/m/Y') }}</td>
                         </tr>
                         <tr>
-                            <td style="padding-top: 4px;"><span class="bold">PLACE OF ISSUE :</span> {{ $boe->place_of_issue }}</td>
+                            <td style="padding-top: 2px;"><span class="bold">PLACE OF ISSUE :</span> {{ $boe->place_of_issue }}</td>
                         </tr>
                     </table>
                 </td>
@@ -135,7 +135,7 @@
         </table>
 
         {{-- MIDDLE TEXT SECTION --}}
-        <div style="font-size:13px !important" class="content-para">
+        <div style="font-size:16px !important" class="content-para">
             AT DP / (AT SIGHT) pay against this <span class="bold">sole</span> bill of exchange to the order of<br>
             {{ $setting->company_name ?? 'MOKSHAM EXPORT IMPORT LLC' }}({{ $setting?->company_country ?? 'USA' }})<br>
             the sum of (<span class="bold">USD {{ ucwords(strtolower($boe->amount_in_words)) }}</span>)<br>
@@ -150,16 +150,16 @@
                     <div class="bold mb-1">DRAWEE :</div>
                     
                     @if($displayName)
-                        <div class="mb-0" style="font-size:12px !important">{{ $displayName }}</div>
+                        <div class="mb-0" style="font-size:14px !important">{{ $displayName }}</div>
                     @endif
 
                     @if($displayAddress)
-                        <div class="mb-0" style="font-size:12px !important">{!! nl2br(e($displayAddress)) !!}</div>
+                        <div class="mb-0" style="font-size:14px !important">{!! nl2br(e($displayAddress)) !!}</div>
                     @endif
 
                     @if(!empty($details))
                         @foreach($details as $label => $value)
-                            <div style="font-size:12px !important">{{ $label }} {{ $value }}</div>
+                            <div style="font-size:14px !important">{{ $label }} {{ $value }}</div>
                         @endforeach
                     @endif
                 </td>
@@ -178,7 +178,7 @@
         </table>
 
         {{-- FOOTER SECTION --}}
-        <div class="footer" style="font-size:12px !important">
+        <div class="footer" style="font-size:13px !important">
             FOR COLLECTION ONLY - PAY TO THE ORDER OF ANY BANK - WITHOUT RECOURSE - ENDORSED BY {{ $setting->company_name ?? 'MOKSHAM EXPORT IMPORT LLC' }}.
         </div>
 

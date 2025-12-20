@@ -4,7 +4,10 @@
     <meta charset="utf-8"/>
     <title>Packing List #{{ $packingList->id }}</title>
     <style>
-        @page { margin: 40px 60px 40px 60px; }
+        @page {
+            size: A4;
+            margin: 60px 60px 40px 60px;
+        }
         body { 
             font-family: "Times New Roman", Times, serif; 
             font-size: 12px !important; 
@@ -29,6 +32,7 @@
             width: 50%;
             float: left;
             vertical-align: top;
+            padding-top: 38px;
         }
         .logo-box img {
             max-width: 250px;
@@ -72,9 +76,13 @@
         
         /* Footer */
         .footer {
+            position: fixed;
+            bottom:0;
+            left:0;
             text-align: center;
             margin-top: 30px;
-            font-size: 12px;
+            font-size: 14px;
+            width: 100%;
         }
         .footer a {
             color: #0070c0; /* Blue link color from image */
@@ -85,7 +93,7 @@
             color: #0070c0;
             font-style: italic;
             font-weight: bold;
-            margin-top: 15px;
+            margin-top: 20px;
             font-size: 14px;
         }
         .page-num {
@@ -178,7 +186,7 @@
     {{-- Row 7 --}}
     <tr>
         <th class="bg-gray">DESTINATION</th>
-        <td>{{ $packingList->destination }}</td>
+        <td style="text-transform: uppercase;">{{ $packingList->destination }}</td>
         
         <th class="bg-gray">ORDER NO:</th>
         <td>{{ $packingList->order_no }}</td>
@@ -187,7 +195,7 @@
     {{-- Row 8 --}}
     <tr>
         <th class="bg-gray">SHIP IN:</th>
-        <td>{{ $packingList->ship_in }}</td>
+        <td style="text-transform: uppercase;">{{ $packingList->ship_in }}</td>
         
         <th class="bg-gray">CONTACT:</th>
         <td>{{ $packingList->contact }}</td>
@@ -212,11 +220,11 @@
 <table class="grid" style="margin-top: 15px;">
     <thead>
         <tr>
-            <th class="text-center bg-gray" style="width: 18%;">CONTAINER NO.</th>
-            <th class="text-center bg-gray" style="width: 13%;">SEAL NO.</th>
-            <th class="text-center bg-gray" style="width: 30%;">DESCRIPTION</th>
-            <th class="text-center bg-gray" style="width: 16%;">NO. OF BALES</th>
-            <th class="text-center bg-gray" style="width: 23%;">WEIGHT</th>
+            <th class="text-center bg-gray" style="width: 17%;padding-left:5px;padding-right:5px;">CONTAINER NO.</th>
+            <th class="text-center bg-gray" style="width: 12%;padding-left:5px;padding-right:5px;">SEAL NO.</th>
+            <th class="text-center bg-gray" style="width: 48%;">DESCRIPTION</th>
+            <th class="text-center bg-gray" style="width: 9%;">BALES</th>
+            <th class="text-center bg-gray" style="width: 14%;">WEIGHT</th>
         </tr>
     </thead>
     <tbody>
@@ -242,8 +250,8 @@
 <table class="grid" style="margin-top: 15px;">
     <thead>
         <tr>
-            <th class="text-center bg-gray" style="width: 18%;">TOTAL BALES</th>
-            <th class="text-center bg-gray" style="width: 59%;">DESCRIPTION</th>
+            <th class="text-center bg-gray" style="width: 17%;">TOTAL BALES</th>
+            <th class="text-center bg-gray" style="width: 60%;">DESCRIPTION</th>
             <th class="text-center bg-gray" style="width: 23%;">TOTAL WEIGHT IN LBS</th>
         </tr>
     </thead>

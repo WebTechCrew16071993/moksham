@@ -41,8 +41,8 @@
 
         /* Column Widths based on images */
         .col-1 { width: 4%; text-align: center; } /* S.No */
-        .col-2 { width: 40%; } /* Description */
-        .col-3 { width: 56%; } /* Details */
+        .col-2 { width: 44%; } /* Description */
+        .col-3 { width: 52%; } /* Details */
 
         /* Utility for pre-formatted text that wraps */
         .pre-wrap {
@@ -165,12 +165,12 @@
             </tr>
 
             <tr>
-                <td class="col-1">8.</td>
+                <td style="border-bottom:none !important;" class="col-1">8.</td>
                 <td>General Description of waste</td>
                 <td></td>
             </tr>
             <tr>
-                <td style="border-bottom:none !important;" class="col-1"></td>
+                <td style="border-top:none !important;border-bottom:none !important;" class="col-1"></td>
                 <td style="border-bottom:none !important;">(a) Quantity</td>
                 <td class="bold">{{ number_format((float)$f->quantity_kgs, 3, '.', '') }} KGS</td>
             </tr>
@@ -248,12 +248,12 @@
             </tr>
 
             <tr>
-                <td class="col-1">11.</td>
+                <td style="border-bottom:none !important;" class="col-1">11.</td>
                 <td>Movement subject to single / multiple consignment</td>
                 <td class="bold">{{ strtoupper($f->movement_type ?? 'SINGLE') }}</td>
             </tr>
             <tr>
-                <td class="col-1"></td>
+                <td style="border-top:none !important;" class="col-1"></td>
                 <td>
                     In case of multiple movement-<br>
                     (a) Expected dates of each shipment or expected frequency of the shipments<br>
@@ -261,7 +261,7 @@
                 </td>
                 <td class="bold">
                     <br>
-                    {{ $f->expected_shipment_dates ?: 'N.A.' }}<br>
+                    {{ $f->expected_shipment_dates ?: 'N.A.' }}<br><br>
                     {{ $f->estimated_quantities ?: 'N.A.' }}
                 </td>
             </tr>
@@ -364,7 +364,7 @@
 
             <tr>
                 <td style="border-bottom:none;border-top:none"></td>
-                <td style="border-bottom:none;border-top:none">Signature</td>
+                <td style="border-bottom:none;border-top:none" style="height: 40px;">Signature</td>
                 <td style="border-bottom:none;border-top:none"></td>
             </tr>
 
