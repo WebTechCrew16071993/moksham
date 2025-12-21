@@ -2,8 +2,7 @@
 
 <x-filament-panels::page>
     <div class="space-y-8">
-        <x-filament::section>
-            <x-slot name="heading">My Profile</x-slot>
+        <x-filament::section class="mb-4 white-stg-card">
             <form id="profileForm" x-data x-on:submit.prevent="if ($('#profileForm').valid()) { $wire.saveProfile() }" class="space-y-6">
                 {{ $this->profileForm }}
                 <div class="flex items-center gap-3">
@@ -14,8 +13,7 @@
             </form>
         </x-filament::section>
 
-        <x-filament::section>
-            <x-slot name="heading">Change Password</x-slot>
+        <x-filament::section class="m-0 white-stg-card">
             <form id="passwordForm" x-data x-on:submit.prevent="if ($('#passwordForm').valid()) { $wire.changePassword() }" class="space-y-6">
                 {{ $this->passwordForm }}
                 <div class="flex items-center gap-3">
