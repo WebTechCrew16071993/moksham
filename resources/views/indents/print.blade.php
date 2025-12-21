@@ -227,15 +227,15 @@
             <td class="col-value">{{ $indent->payload }}</td>
         </tr>
         <tr>
-            <td class="col-label">Shipping line</td>
+            <td class="col-label">Shipping Line</td>
             <td class="col-value">{{ $indent->shipping_line }}</td>
         </tr>
         <tr>
-            <td class="col-label">Discharge port</td>
+            <td class="col-label">Discharge Port</td>
             <td class="col-value">{{ $indent->discharge_port }}</td>
         </tr>
         <tr>
-            <td class="col-label">Final destination</td>
+            <td class="col-label">Final Destination</td>
             <td class="col-value">{{ $indent->final_destination }}</td>
         </tr>
         
@@ -294,7 +294,7 @@
         </tr>
         
         <tr>
-            <td class="col-label font-bold">Release type of OBL</td>
+            <td class="col-label font-bold">Release Type Of OBL</td>
             <td class="col-value"><strong class="text-red">{{ strtoupper($indent->release_type_of_obl) }}</strong></td>
         </tr>
     </table>
@@ -309,7 +309,7 @@
     <div style="page-break-before: always;"></div>
 
     <div style="margin-top: 10px; margin-bottom: 20px; width: 100%;">
-        <div style="float: left; width: 100%;font-size: 15px !important;line-height: 1.25;font-family: Arial, sans-serif !important;">This Agreement shall be governed by and construed in accordance with the laws of United States <br /> of America.</div>
+        <div style="float: left; width: 100%;font-size: 16px !important;line-height: 1.25;">This Agreement shall be governed by and construed in accordance with the laws of United States <br /> of America.</div>
     </div>
     <div style="text-align: right;margin-top: 10px;margin-bottom: 15px;">Date : {{ optional($indent->indent_date)->format('m/d/Y') }}</div>
 
@@ -318,7 +318,7 @@
         <div class="inner-m0 inner-ul2" style="margin-left: 0px;">{!! $indent->claims !!}</div>
     </div>
 
-    <div style="margin-top: 80px;">
+    <div style="margin-top: 30px;">
         <div class="font-bold" style="margin-bottom: 2px;">Remarks :</div>
         <div class="inner-m0 inner-ul3" style="margin-left: 0px;">{!! $indent->remarks !!}</div>
     </div>

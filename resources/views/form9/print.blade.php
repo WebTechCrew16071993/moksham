@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <title>FORM 9</title>
     <style>
-        @page { margin: 20px 60px; }
+        @page { margin: 60px 60px; }
 
         body {
              font-family: Arial, sans-serif;
@@ -84,9 +84,9 @@
         $cL = $carriers->firstWhere('carrier_type', 'last');
     ?>
 
-    <div class="heading">FORM 9</div>
-    <div class="subheading">[See rule - 15 (5) and 16 (5)]</div>
-    <div class="subheading" style="margin-bottom: 10px;">TRANSBOUNDARY MOVEMENT- MOVEMENT DOCUMENT</div>
+    <div class="heading" style="font-size: 20px;margin-bottom: 2px;">FORM 9</div>
+    <div class="subheading" style="margin-bottom: 5px;">[See rule - 15 (5) and 16 (5)]</div>
+    <div class="subheading" style="margin-bottom: 5px;">TRANSBOUNDARY MOVEMENT- MOVEMENT DOCUMENT</div>
 
     <table>
         <thead>
@@ -98,7 +98,7 @@
         </thead>
         <tbody>
             <tr>
-                <td class="col-sno">1.</td>
+                <td class="col-sno no-border-bottom">1.</td>
                 <td class="col-desc">(i) Exporter (Name & Address)</td>
                 <td class="col-details bold">
                     <pre>{{ $disp($f->exporter_name_address) }}</pre>
@@ -155,7 +155,7 @@
 
             <tr>
                 <td style="border-bottom:none !important;" class="col-sno">5.</td>
-                <td class="col-desc">(a) 1ST Carrier (Name & Address)</td>
+                <td class="col-desc" style="height:75px;">(a) 1ST Carrier (Name & Address)</td>
                 <td class="col-details bold">
                     @if($c1)
                         <pre>{{ $disp($c1->name_address) }}</pre>
@@ -185,12 +185,12 @@
             <tr>
                 <td class="col-sno no-border-top"></td>
                 <td class="col-desc">Signature of Carrier's representative</td>
-                <td style="height:70px" class="col-details bold">{{ $c1 ? $disp($c1->signature) : '' }}</td>
+                <td style="height:75px" class="col-details bold">{{ $c1 ? $disp($c1->signature) : '' }}</td>
             </tr>
 
             <tr>
                 <td class="col-sno no-border-top no-border-bottom"></td>
-                <td class="col-desc">(b) 2 ND Carrier (Name & Address)</td>
+                <td class="col-desc" style="height:75px;">(b) 2 ND Carrier (Name & Address)</td>
                 <td class="col-details bold">
                     @if($c2)
                         <pre>{{ $disp($c2->name_address) }}</pre>
@@ -220,12 +220,21 @@
             <tr>
                 <td class="col-sno no-border-top"></td>
                 <td class="col-desc">Signature of Carrier's representative</td>
-                <td style="height:70px" class="col-details bold">{{ $c2 ? $disp($c2->signature) : '' }}</td>
+                <td style="height:75px" class="col-details bold">{{ $c2 ? $disp($c2->signature) : '' }}</td>
             </tr>
 
+            
+
+        </tbody>
+    </table>
+
+    <div style="page-break-before: always;"></div>
+
+    <table>
+        <tbody>
             <tr>
                 <td class="col-sno no-border-top no-border-bottom"></td>
-                <td class="col-desc">(c) Last Carrier (Name & Address)</td>
+                <td class="col-desc" style="height:75px">(c) Last Carrier (Name & Address)</td>
                 <td class="col-details bold">
                     @if($cL)
                         <pre>{{ $disp($cL->name_address) }}</pre>
@@ -255,19 +264,13 @@
             <tr>
                 <td class="col-sno no-border-top"></td>
                 <td class="col-desc">Signature of Carrier's representative</td>
-                <td style="height:70px" class="col-details bold">{{ $cL ? $disp($cL->signature) : '' }}</td>
+                <td style="height:75px" class="col-details bold">{{ $cL ? $disp($cL->signature) : '' }}</td>
             </tr>
-
-        </tbody>
-    </table>
-
-    <table>
-        <tbody>
             <tr>
                 <td style="border-bottom: none;" class="col-sno">6.</td>
                 <td class="col-desc">Disposer (Name, Address)</td>
                 <td class="col-details bold">
-                    <pre>{{ $disp($f->disposer_name_address) }}</pre>
+                    <pre style="min-height: 75px;">{{ $disp($f->disposer_name_address) }}</pre>
                 </td>
             </tr>
             <tr>
@@ -420,8 +423,14 @@
                 <td class="col-desc">Y Number</td>
                 <td class="col-details bold">{{ $disp($f->y_number, 'N.A.') }}</td>
             </tr>
-
-            <tr>
+        </tbody>
+        </table>
+        
+        <div style="page-break-before: always;"></div>
+        
+        <table>
+            <tbody>
+                 <tr>
                 <td class="col-sno">15.</td>
                 <td class="col-desc">Special handling requirements</td>
                 <td class="col-details bold">{{ $disp($f->special_handling_requirements, 'NOTHING SPECIFIC') }}</td>
@@ -453,13 +462,6 @@
                     </div>
                 </td>
             </tr>
-        </tbody>
-        </table>
-        
-        <div style="page-break-before: always;"></div>
-        
-        <table>
-            <tbody>
                 <tr>
                     <td colspan="3" class="bold center" style="background-color: #fff;">TO BE COMPLETED BY IMPORTER/ RECYCLER</td>
                 </tr>
@@ -564,7 +566,7 @@
                 </tr>
                 
                 <tr>
-                    <td class="col-sno">21.</td> <td class="col-desc">Specific Conditions on Consenting to the Movement</td>
+                    <td class="col-sno">23.</td> <td class="col-desc">Specific Conditions on Consenting to the Movement</td>
                     <td class="col-details bold">(Attach details) {{ $disp($f->specific_conditions) }}</td>
                 </tr>
             </tbody>
@@ -576,7 +578,7 @@
         $defaultNotes = "(1) Attach list, if more than one; (2) Enter X in appropriate box; (3) See codes reverse (x) Immediately contact Competent Authority; (4) If more than three carriers, attach information as required Sr. No. 5.";
         $notesText = trim($f->notes ?? '') !== '' ? $f->notes : $defaultNotes;
     ?>
-    <div style="font-weight:bold; margin-bottom:15px; font-size:11px;">Note: {{ $notesText }}</div>
+    <div style="font-weight:bold; margin-bottom:20px; font-size:11px;">Note: {{ $notesText }}</div>
 
     <div class="bold center" style="margin-bottom:5px;">List of abbreviations used in the notification</div>
     <div class="bold center" style="margin-bottom:5px;">RECOVERY OPERATIONS (Sr. No. 7)</div>
@@ -601,7 +603,7 @@
     <table style="border:none; margin-bottom: 20px;">
         <?php foreach ($defaultOps as $row): ?>
             <tr>
-                <td style="border:none; width:50px; font-weight:bold; padding:2px;">{{ $row['code'] }}</td>
+                <td style="border:none; width:80px; font-weight:bold; padding:2px;">{{ $row['code'] }}</td>
                 <td style="border:none;font-weight:bold; padding:2px;">{{ $row['description'] }}</td>
             </tr>
         <?php endforeach; ?>

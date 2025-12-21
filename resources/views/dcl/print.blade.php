@@ -64,7 +64,7 @@
     <table>
         <tr>
             <td width="65%">
-                <img src="{{ public_path('images/moksham-logo.png') }}" style="height:50px; display:block; margin-bottom: 8px;">
+                <img src="{{ public_path('images/moksham-logo.png') }}" style="height:56px; display:block; margin-bottom: 8px;">
                 
                 <div style="font-size:12px; text-transform: uppercase;">{{ $setting?->company_address }}</div>
                 <div style="font-size:12px; text-transform: uppercase;">{{ trim(($setting?->company_city.' '.$setting?->company_state.' '.$setting?->company_zip)) }} {{ $setting?->company_country }}</div>
@@ -83,20 +83,20 @@
         </tr>
     </table>
 
-    <div class="subject-line">
-        RE : Documentary collection on our customer {{ $letter->consignee?->name }} in {{ $letter->consignee?->country ?? 'INDIA' }}.
+    <div class="subject-line" style="font-size:16px;">
+        RE : Documentary collection on our customer {{ strtoupper($letter->consignee?->name) }} In {{ strtoupper($letter->consignee?->country ?? 'INDIA') }}
     </div>
 
-    <div class="mb-1 bold">Dear Sirs,</div>
+    <div class="mb-1 bold" style="font-size:16px;">Dear Sirs,</div>
 
-    <p>
-        Please find attached the whole set of documents for our a/m customer under our invoice number
+    <p style="font-size:16px;">
+        Please find attached the whole set of documents for our a/m customer under our invoice number <br>
         <span class="bold">{{ $letter->invoice?->invoice_no }}</span> for <span class="bold">USD {{ number_format($letter->amount_usd, 2) }}</span>
     </p>
 
-    <p>Please present these documents for acceptance/collection through:</p>
+    <p style="font-size:16px;">Please present these documents for acceptance/collection through:</p>
 
-    <div class="bank-details">
+    <div class="bank-details" style="font-size:16px;">
         @if($letter->consignee && ($letter->consignee->bank_name || $letter->consignee->bank_account_number))
             <div class="bold">{{ $letter->consignee->bank_name }}</div>
             @if($letter->consignee->bank_address)
@@ -111,17 +111,17 @@
                 @endif
             @endif
         @else
-            <div class="bold">STATE BANK OF INDIA</div>
-            <div>WHOLESALE BANKING OPERATIONS,</div>
-            <div>Sahakari Jin Road Branch, Uma Complex,</div>
-            <div>Plot No 9-10, Rajmehal Society, Sahkari Jin Road,</div>
-            <div>Himatnagar - 383 001 GUJARAT – (INDIA)</div>
+            <div style="font-size:16px;" class="bold">STATE BANK OF INDIA</div>
+            <div style="font-size:16px;">WHOLESALE BANKING OPERATIONS,</div>
+            <div style="font-size:16px;">Sahakari Jin Road Branch, Uma Complex,</div>
+            <div style="font-size:16px;">Plot No 9-10, Rajmehal Society, Sahkari Jin Road,</div>
+            <div style="font-size:16px;">Himatnagar - 383 001 GUJARAT – (INDIA)</div>
         @endif
     </div>
 
-    <p style="margin-top: 20px;">Please note all bank’s commissions and charges outside USA are for drawee’s account.</p>
+    <p style="font-size:16px;margin-top: 20px;">Please note all bank’s commissions and charges outside USA are for drawee’s account.</p>
     
-    <p>Documents not to be released prior previous acceptance and/or full payment of our above draft (s) and/or invoice.</p>
+    <p style="font-size:16px;">Documents not to be released prior previous acceptance and/or full payment of our above draft (s) <br> and/or invoice.</p>
 
     <table>
         <tr>
@@ -129,9 +129,9 @@
 
             </td>
             <td>
-                <div class="footer" style="text-align: center;">
+                <div class="footer" style="text-align: center;font-size:16px;">
                     <div>Yours faithfully,</div>
-                    <div class="bold" style="margin-top: 2px;text-transform: uppercase;">{{ $setting->company_signature_text ?? $setting->company_name ?? 'MOKSHAM EXPORT IMPORT LLC.' }}</div>
+                    <div class="bold" style="font-size:16px;margin-top: 2px;text-transform: uppercase;">{{ $setting->company_signature_text ?? $setting->company_name ?? 'MOKSHAM EXPORT IMPORT LLC.' }}</div>
                     
                     <div style="height: 60px;"></div>
                     
@@ -140,6 +140,8 @@
             </td>
         </tr>
     </table>
+
+    <div style="font-size:16px;text-decoration: underline;position: fixed;bottom:120px;left:0;">Encl. Ment</div>
 
 </body>
 </html>

@@ -87,7 +87,7 @@ class Settings extends Page implements HasForms
             'passwordForm' => $this->makeForm()
                 ->schema([
                     Section::make('Change Password')
-                        ->extraAttributes(['class' => 'mt-6 md:mt-8'])
+                        ->extraAttributes(['class' => 'mt-0 md:mt-0'])
                         ->schema([
                             Forms\Components\TextInput::make('current_password')
                                 ->password()
