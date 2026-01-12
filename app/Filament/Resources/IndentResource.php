@@ -171,11 +171,25 @@ class IndentResource extends Resource
                     ->columns(12)
                     ->schema([
                         Forms\Components\RichEditor::make('other_terms')
-                            ->label('Other Terms')
+                            ->label('Payment Terms')
                             ->default('<ol>'
-                                .'<li>This Agreement shall be governed by and construed in accordance with the laws of United States of America.</li>'
-                                .'<li>All amounts and commercial terms as specified in this indent shall prevail unless mutually amended in writing.</li>'
+                                .'<li>Insurance will be covered for 100% of the value up to buyers mill. </li>'
+                                .'<li>Require minimum <span style="color:red;">14 days free</span> at final destination</li>'
                                 .'</ol>')
+                            ->afterStateHydrated(function (\Filament\Forms\Components\RichEditor $component, $state) {
+                                if (is_string($state)) {
+                                    if (!\Illuminate\Support\Str::contains($state, '<span style="color:red;">14 days free</span>')) {
+                                        $state = preg_replace('/14\s*days\s*free/i', '<span style="color:red;">$0</span>', $state, 1);
+                                        $component->state($state);
+                                    }
+                                }
+                            })
+                            ->dehydrateStateUsing(function ($state) {
+                                if (is_string($state) && !\Illuminate\Support\Str::contains($state, '<span style="color:red;">14 days free</span>')) {
+                                    $state = preg_replace('/14\s*days\s*free/i', '<span style="color:red;">$0</span>', $state, 1);
+                                }
+                                return $state;
+                            })
                             ->columnSpan(12)
                             ->disableToolbarButtons(['attachFiles','codeBlock'])
                             ->required(),
@@ -271,6 +285,7 @@ class IndentResource extends Resource
                         'completed' => 'Completed',
                     ]),
             ])
+            ->defaultSort('created_at', 'desc')
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make()

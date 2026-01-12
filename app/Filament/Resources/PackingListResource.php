@@ -130,8 +130,13 @@ class PackingListResource extends Resource
                     ->helperText('If left blank, it will auto-fill from container count and ship type.')
                     ->dehydrated(true)
                     ->columnSpan(6),
-                Forms\Components\TextInput::make('contact')->nullable()->columnSpan(6),
-                Forms\Components\TextInput::make('phone')->tel()->nullable()->columnSpan(6),
+                Forms\Components\TextInput::make('contact person')->nullable()->columnSpan(6),
+                Forms\Components\TextInput::make('phone')
+                    ->tel()
+                    ->nullable()
+                    ->rule('regex:/^\+?(?=(?:.*\d){7,15}$)[0-9 ]+$/')
+                    ->extraAttributes(['inputmode' => 'tel', 'pattern' => '^\+?[0-9 ]*$'])
+                    ->columnSpan(6),
             ]),
 
             Repeater::make('items')
@@ -252,6 +257,7 @@ class PackingListResource extends Resource
                         'finalized' => 'Finalized',
                     ]),
             ])
+            ->defaultSort('created_at', 'desc')
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\Action::make('openBl')

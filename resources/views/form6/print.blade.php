@@ -150,7 +150,7 @@
             <tr>
                 <td class="col-1">6.</td>
                 <td>Bill of lading (attach copy)</td>
-                <td>{{ $f->bill_of_lading }}</td>
+                <td>{{ (trim((string)($f->bill_of_lading ?? '')) !== '') ? $f->bill_of_lading : (optional($f->bl)->booking_no ?? '') }}</td>
             </tr>
 
             <tr>

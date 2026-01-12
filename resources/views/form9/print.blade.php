@@ -150,7 +150,7 @@
             <tr>
                 <td class="col-sno">4.</td>
                 <td class="col-desc">Bill of lading (attach copy)</td>
-                <td class="col-details bold">{{ $disp($f->bill_of_lading) }}</td>
+                <td class="col-details bold">{{ $disp((trim((string)($f->bill_of_lading ?? '')) !== '') ? $f->bill_of_lading : (optional($f->bl)->booking_no)) }}</td>
             </tr>
 
             <tr>

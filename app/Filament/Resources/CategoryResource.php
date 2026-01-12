@@ -67,6 +67,7 @@ class CategoryResource extends Resource
                 Tables\Columns\TextColumn::make('description')->limit(40)->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('created_at')->since()->sortable(),
             ])
+            ->defaultSort('created_at', 'desc')
             
             ->actions([
                 Tables\Actions\EditAction::make(),

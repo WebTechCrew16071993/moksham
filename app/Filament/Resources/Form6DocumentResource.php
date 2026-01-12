@@ -54,6 +54,7 @@ class Form6DocumentResource extends Resource
                         // Reset dependent fields when shipment changes
                         $set('invoice_id', null);
                         $set('bl_correction_id', null);
+                        $set('bill_of_lading', null);
                     })
                     ->columnSpan(4),
                 Forms\Components\Select::make('invoice_id')
@@ -115,6 +116,11 @@ class Form6DocumentResource extends Resource
                         })->toArray();
                     })
                     ->searchable()->preload()->native(false)->required()
+                    ->reactive()
+                    ->afterStateUpdated(function ($state, callable $set) {
+                        $bl = $state ? \App\Models\BlCorrection::find($state) : null;
+                        $set('bill_of_lading', $bl?->booking_no);
+                    })
                     ->rule(function (Get $get) {
                         return function (string $attribute, $value, \Closure $fail) use ($get) {
                             $shipmentId = $get('shipment_id');
@@ -202,7 +208,14 @@ class Form6DocumentResource extends Resource
             ]),
 
             Forms\Components\Section::make('7-11. Shipment')->schema([
-                Forms\Components\TextInput::make('bill_of_lading')->label('Bill of lading')->columnSpan(4),
+                Forms\Components\TextInput::make('bill_of_lading')
+                    ->label('Bill of lading')
+                    ->afterStateHydrated(function (Set $set, $state, $record) {
+                        if (($state === null || trim((string)$state) === '') && $record && $record->bl) {
+                            $set('bill_of_lading', $record->bl->booking_no);
+                        }
+                    })
+                    ->columnSpan(4),
                 Forms\Components\TextInput::make('country_of_export')->default('United States')->columnSpan(4),
                 Forms\Components\TextInput::make('country_of_import')->default('India')->columnSpan(4),
                 Forms\Components\TextInput::make('quantity_kgs')->numeric()->required()->columnSpan(4),
@@ -375,7 +388,9 @@ class Form6DocumentResource extends Resource
                 ->toggleable()
                 ->visible(fn ($record) => filled($record?->pdf_path)),
             Tables\Columns\TextColumn::make('created_at')->since()->sortable(),
-        ])->filters([
+        ])
+        ->defaultSort('created_at', 'desc')
+        ->filters([
             Tables\Filters\SelectFilter::make('status')
                 ->label('Status')
                 ->options([
@@ -460,12 +475,12 @@ class Form6DocumentResource extends Resource
 
     public static function getRelations(): array
     {
-        $user = Auth::user();
-        if ($user && method_exists($user, 'isAdmin') && $user->isAdmin()) {
-            return [
-                \App\Filament\Resources\Form6DocumentResource\RelationManagers\HistoriesRelationManager::class,
-            ];
-        }
+        // $user = Auth::user();
+        // if ($user && method_exists($user, 'isAdmin') && $user->isAdmin()) {
+        //     return [
+        //         \App\Filament\Resources\Form6DocumentResource\RelationManagers\HistoriesRelationManager::class,
+        //     ];
+        // }
         return [];
     }
 }

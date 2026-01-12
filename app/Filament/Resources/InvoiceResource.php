@@ -305,6 +305,7 @@ class InvoiceResource extends Resource
                         'paid' => 'Paid',
                     ]),
             ])
+            ->defaultSort('created_at', 'desc')
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\Action::make('pdf')

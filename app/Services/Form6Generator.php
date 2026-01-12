@@ -63,7 +63,7 @@ class Form6Generator
             'importer_contact_person' => $indent?->kind_attention ?: 'N.A.',
             'importer_phone' => $indent?->consignee_phone ?? null,
             'importer_email' => $indent?->consignee_email ?? null,
-            'bill_of_lading' => $bl?->bl_no,
+            'bill_of_lading' => $bl?->booking_no ?? $bl?->bl_no ?? null,
             'country_of_export' => 'United States',
             'country_of_import' => 'India',
             'quantity_kgs' => $quantityKgs,

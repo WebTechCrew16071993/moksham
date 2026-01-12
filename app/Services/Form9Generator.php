@@ -60,7 +60,7 @@ class Form9Generator
             'importer_contact_person' => $indent?->kind_attention ?: 'N.A.',
             'importer_phone' => $indent?->consignee_phone ?? null,
             'importer_email' => $indent?->consignee_email ?? null,
-            'bill_of_lading' => $bl?->bl_no,
+            'bill_of_lading' => $bl?->booking_no ?? $bl?->bl_no ?? null,
             // Disposer (use importer info by default)
             'disposer_name_address' => $importerAddress,
             'disposer_contact_person' => $indent?->kind_attention ?: 'N.A.',

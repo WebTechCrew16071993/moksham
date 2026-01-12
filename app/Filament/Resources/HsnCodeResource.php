@@ -92,6 +92,7 @@ class HsnCodeResource extends Resource
                     ->label('Category')
                     ->options(fn () => \App\Models\Category::query()->orderBy('name')->pluck('name', 'id')->all()),
             ])
+            ->defaultSort('created_at', 'desc')
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make()

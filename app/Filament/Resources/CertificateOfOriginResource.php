@@ -401,6 +401,7 @@ class CertificateOfOriginResource extends Resource
                         'completed' => 'Completed',
                     ]),
             ])
+            ->defaultSort('created_at', 'desc')
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\Action::make('downloadSignedPdf')

@@ -68,7 +68,9 @@ class DocumentaryCollectionLetterResource extends Resource
             Tables\Columns\BadgeColumn::make('status')->colors([
                 'gray'=>'draft','success'=>'finalized'
             ])->sortable(),
-        ])->actions([
+        ])
+        ->defaultSort('created_at', 'desc')
+        ->actions([
             Tables\Actions\EditAction::make(),
             Tables\Actions\Action::make('pdf')
                 ->label('PDF')

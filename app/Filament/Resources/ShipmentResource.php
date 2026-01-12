@@ -140,6 +140,7 @@ class ShipmentResource extends Resource
                         'cancelled' => 'Cancelled',
                     ]),
             ])
+            ->defaultSort('created_at', 'desc')
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make()
@@ -154,15 +155,12 @@ class ShipmentResource extends Resource
 
     public static function getRelations(): array
     {
-        $user = Auth::user();
-        if ($user && method_exists($user, 'isAdmin') && $user->isAdmin()) {
-            return [
-                PackingListsRelationManager::class,
-                BlCorrectionsRelationManager::class,
-                InvoicesRelationManager::class,
-            ];
-        }
-        // For non-admin users, do not show relation managers on Shipment
+        // Temporarily hidden for future use. Uncomment to restore tabs.
+        // return [
+        //     PackingListsRelationManager::class,
+        //     BlCorrectionsRelationManager::class,
+        //     InvoicesRelationManager::class,
+        // ];
         return [];
     }
 

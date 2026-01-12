@@ -69,7 +69,9 @@ class CreditNoteResource extends Resource
             Tables\Columns\TextColumn::make('invoice.invoice_no')->label('Invoice')->sortable()->searchable(),
             Tables\Columns\TextColumn::make('total_amount')->money('usd', true)->sortable(),
             Tables\Columns\TextColumn::make('created_at')->since()->sortable(),
-        ])->actions([
+        ])
+        ->defaultSort('created_at', 'desc')
+        ->actions([
             Tables\Actions\EditAction::make(),
             Tables\Actions\Action::make('pdf')->label('PDF')->icon('heroicon-o-arrow-down-tray')
                 ->url(fn (CreditDebitNote $record) => route('cdn.pdf', ['note' => $record->getKey(), 'download' => 0]))

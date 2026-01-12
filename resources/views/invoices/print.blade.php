@@ -193,7 +193,7 @@
                 </tr>
                 <tr>
                     <td class="bold border-right border-bottom no-border-left bg-gray h-2" style="padding-left:2px;padding-right:2px;">SI CUT OFF:</td>
-                    <td class="center border-right border-bottom h-2" style="padding-left:2px;padding-right:2px;">{{ $invoice->si_cut_off ?? '' }}</td>
+                    <td class="center border-right border-bottom h-2" style="padding-left:2px;padding-right:2px;">{{ $invoice->si_cut_off ? \Carbon\Carbon::parse($invoice->si_cut_off)->format('m/d/Y') : '' }}</td>
                     <td class="bold border-right border-bottom bg-gray h-2" style="padding-left:2px;padding-right:2px;">DESTINATION:</td>
                     <td class="center border-bottom uppercase  no-border-right h-2" style="padding-left:2px;padding-right:2px;">{{ $invoice->f_dest ?? $invoice->packingList?->destination }}</td>
                 </tr>
@@ -265,7 +265,7 @@
 <table class="border-all" style="margin-top: 15px;">
     <tr><td class="bold bg-gray box-header border-bottom">REMARKS</td></tr>
     @if($invoice->remarks)
-    <tr><td style="padding: 4px; border-bottom: none;">{!! nl2br(e($invoice->remarks)) !!}</td></tr>
+    <tr><td style="padding: 4px; border-bottom: none;">{!! nl2br($invoice->remarks) !!}</td></tr>
     @endif
     
     <tr>

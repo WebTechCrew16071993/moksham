@@ -203,6 +203,7 @@ class Form9DocumentResource extends Resource
                                     // Reset dependent selects when shipment changes
                                     $set('invoice_id', null);
                                     $set('bl_correction_id', null);
+                                    $set('bill_of_lading', null);
                                 })
                                 ->columnSpan(1),
                             Forms\Components\Select::make('invoice_id')
@@ -270,6 +271,11 @@ class Form9DocumentResource extends Resource
                                 ->searchable()
                                 ->preload()
                                 ->native(false)
+                                ->reactive()
+                                ->afterStateUpdated(function ($state, \Filament\Forms\Set $set) {
+                                    $bl = $state ? \App\Models\BlCorrection::find($state) : null;
+                                    $set('bill_of_lading', $bl?->booking_no);
+                                })
                                 ->rule(function (\Filament\Forms\Get $get) {
                                     return function (string $attribute, $value, \Closure $fail) use ($get) {
                                         $shipmentId = $get('shipment_id');
@@ -284,6 +290,11 @@ class Form9DocumentResource extends Resource
                                 ->columnSpan(1),
                             Forms\Components\TextInput::make('bill_of_lading')
                                 ->label('4. Bill of Lading')
+                                ->afterStateHydrated(function (\Filament\Forms\Set $set, $state, $record) {
+                                    if (($state === null || trim((string)$state) === '') && $record && $record->bl) {
+                                        $set('bill_of_lading', $record->bl->booking_no);
+                                    }
+                                })
                                 ->columnSpan(1),
                         ]),
                     Forms\Components\Section::make('Form 9 Details')
@@ -301,7 +312,7 @@ class Form9DocumentResource extends Resource
                                 ->columnSpan(1),
                             Forms\Components\TextInput::make('applicant_ref_no')
                                 ->label('Applicant Reference No')
-                                ->required()
+                                // ->required()
                                 ->columnSpan(1),
                         ]),
                     Forms\Components\Select::make('movement_type')
@@ -757,7 +768,9 @@ class Form9DocumentResource extends Resource
                     // 'recycling_completed' => 'Recycling Completed',
                     'completed' => 'Completed',
                 ]),
-        ])->actions([
+        ])
+        ->defaultSort('created_at', 'desc')
+        ->actions([
             Tables\Actions\EditAction::make(),
             Tables\Actions\Action::make('latestPdf')
                 ->label('Latest PDF')
@@ -828,12 +841,12 @@ class Form9DocumentResource extends Resource
 
     public static function getRelations(): array
     {
-        $user = Auth::user();
-        if ($user && method_exists($user, 'isAdmin') && $user->isAdmin()) {
-            return [
-                \App\Filament\Resources\Form9DocumentResource\RelationManagers\HistoriesRelationManager::class,
-            ];
-        }
+        // $user = Auth::user();
+        // if ($user && method_exists($user, 'isAdmin') && $user->isAdmin()) {
+        //     return [
+        //         \App\Filament\Resources\Form9DocumentResource\RelationManagers\HistoriesRelationManager::class,
+        //     ];
+        // }
         return [];
     }
 }
