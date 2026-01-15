@@ -55,6 +55,7 @@ class SelfDeclarationResource extends Resource
                     ->afterStateHydrated(function($component,$state){ if(is_array($state)) $component->state(json_encode($state, JSON_PRETTY_PRINT)); }),
                 Forms\Components\TextInput::make('signer_name')->columnSpan(6),
                 Forms\Components\TextInput::make('signer_title')->columnSpan(6),
+                Forms\Components\Toggle::make('show_signature')->label('Show signature on PDF')->default(false)->columnSpan(3),
                 Forms\Components\Select::make('status')->options([
                     'draft'=>'Draft','finalized'=>'Finalized'
                 ])->default('draft')->native(false)->columnSpan(3),

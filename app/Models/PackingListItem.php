@@ -17,11 +17,13 @@ class PackingListItem extends Model
         'no_of_bales',
         'weight_lbs',
         'weight_kg',
+        'weight_mt',
     ];
 
     protected $casts = [
         'weight_lbs' => 'decimal:3',
         'weight_kg' => 'decimal:3',
+        'weight_mt' => 'decimal:3',
     ];
 
     public function packingList()
@@ -37,6 +39,11 @@ class PackingListItem extends Model
                 $kg = round((float) $item->weight_lbs * 0.453592, 3);
                 // Store as float; decimal cast will handle formatting
                 $item->weight_kg = $kg;
+            }
+            // Auto-convert KG to MT (metric tons)
+            if (!is_null($item->weight_kg)) {
+                $mt = round((float) $item->weight_kg / 1000, 3);
+                $item->weight_mt = $mt;
             }
         });
     }

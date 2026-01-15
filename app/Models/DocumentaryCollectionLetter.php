@@ -13,13 +13,14 @@ class DocumentaryCollectionLetter extends Model
     protected $fillable = [
         'invoice_id','shipment_id','packing_list_id','bl_correction_id','user_id','consignee_id',
         'letter_no','letter_date','sa_contract_no','ref_invoice_no','amount_usd',
-        'notes','signer_name','signer_title','pdf_path','status',
+        'notes','signer_name','signer_title','pdf_path','status','show_signature',
         'ref_year','ref_container_count',
     ];
 
     protected $casts = [
         'letter_date' => 'date',
         'amount_usd' => 'decimal:2',
+        'show_signature' => 'boolean',
     ];
 
     public function invoice(){ return $this->belongsTo(Invoice::class); }

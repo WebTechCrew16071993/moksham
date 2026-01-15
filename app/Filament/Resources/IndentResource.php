@@ -219,6 +219,10 @@ class IndentResource extends Resource
                             ->columnSpan(12)
                             ->disableToolbarButtons(['attachFiles','codeBlock'])
                             ->required(),
+                        Forms\Components\Toggle::make('show_signature')
+                            ->label('Show signature on PDF')
+                            ->default(false)
+                            ->columnSpan(12),
                     ]),
 
                 // Status section (visible on edit only)

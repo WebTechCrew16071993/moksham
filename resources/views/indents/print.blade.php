@@ -328,10 +328,12 @@
             <td style="width: 50%; text-align: left;vertical-align: bottom;">
                 <div style="margin-bottom: 50px;">Thanking You Yours Sincerely,</div>
                 
-                @if($setting?->company_signed_logo)
+                @if($indent->show_signature && $setting?->company_signed_logo)
                     <div style="margin-bottom: 5px;">
                         <img src="{{ public_path('storage/'.ltrim($setting->company_signed_logo, '/')) }}" alt="signature" height="60">
                     </div>
+                @else
+                    <div style="height: 60px;"></div>
                 @endif
                 <div style="border-top: 1px solid transparent;">Authorized Sign. of Indenter / Shipper</div>
             </td>
@@ -341,7 +343,8 @@
                         <img src="{{ public_path('storage/'.ltrim($indent->consignee_signature_path, '/')) }}" alt="consignee signature" height="60">
                     </div>
                 @else
-                    <div style="height: 60px;"></div> @endif
+                    <div style="height: 60px;"></div>
+                @endif
                 <div style="text-align: right; width: 100%;display:block">Authorized Sign. of Consignee</div>
             </td>
         </tr>

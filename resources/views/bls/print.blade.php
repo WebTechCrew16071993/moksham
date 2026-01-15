@@ -129,7 +129,7 @@
             <td></td>
         </tr>
         <tr>
-            <td class="bold">Net Weight KGS</td><td class="bold" style="text-transform: uppercase;">{{ number_format((float)$bl->net_weight_kgs, 3, '.', '') }} (KGS)</td>
+            <td class="bold">Net Weight KGS</td><td class="bold" style="text-transform: uppercase;">{{ number_format((float)$bl->net_weight_kgs, 2, '.', '') }} (KGS)</td>
             <td class="bold uppercase">DESTINATION</td><td style="text-transform: uppercase;">{{ $bl->destination }}</td>
             <td></td>
         </tr>
@@ -156,9 +156,9 @@
             <tr class="header-bg uppercase">
                 <th style="width: 18%">CONTAINER NO.</th>
                 <th style="width: 10%">SEAL NO.</th>
-                <th style="width: 37%">COMMODITY DETAILS.</th>
+                <th style="width: 34%">COMMODITY DETAILS.</th>
                 <th style="width: 10%">NO. OF BALES</th>
-                <th style="width: 25%">WEIGHT<br>KGS</th>
+                <th style="width: 14%">WEIGHT<br>KGS</th>
             </tr>
         </thead>
         <tbody>
@@ -168,7 +168,7 @@
                     <td class="center">{{ $row->seal_no }}</td>
                     <td class="center">{{ $row->commodity }}</td>
                     <td class="center">{{ $row->no_of_bales }}</td>
-                    <td class="center">{{ number_format((float)$row->weight_kgs, 3, '.', '') }}</td>
+                    <td class="center">{{ number_format((float)$row->weight_kgs, 2, '.', '') }}</td>
                 </tr>
             @endforeach
             <!-- {{-- Fill rows to match image height (approx 10 total slots) --}}
@@ -194,7 +194,7 @@
         <tr>
             <td class="center">{{ $bl->total_bales }}</td>
             <td class="center uppercase">{{ $bl->commodity_description }}</td>
-            <td class="center bold">{{ number_format((float)$bl->net_weight_kgs, 3, '.', '') }}</td>
+            <td class="center bold">{{ number_format((float)$bl->net_weight_kgs, 2, '.', '') }}</td>
         </tr>
     </table>
 
@@ -203,7 +203,7 @@
         <tr>
             <td style="width:57%; border:0;"></td>
             <td style="width: 18%" class="header-bg bold center">IN MTS</td>
-            <td style="width: 25%" class="center bold">{{ number_format((float)$bl->net_weight_mts, 6, '.', '') }}</td>
+            <td style="width: 25%" class="center bold">{{ number_format((float)$bl->net_weight_mts, 2, '.', '') }}</td>
         </tr>
     </table>
 

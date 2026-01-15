@@ -23,11 +23,12 @@ class Indent extends Model
         'other_terms','claims','remarks',
         'shipper_signature_path','consignee_signature_path',
         // workflow fields
-        'status', 'consignee_signed_pdf_path',
+        'status', 'consignee_signed_pdf_path', 'show_signature',
     ];
 
     protected $casts = [
         'indent_date' => 'date',
+        'show_signature' => 'boolean',
     ];
 
     public function consignee()

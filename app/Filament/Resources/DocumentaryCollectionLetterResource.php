@@ -51,6 +51,7 @@ class DocumentaryCollectionLetterResource extends Resource
                 Forms\Components\Textarea::make('notes')->rows(2)->columnSpan(12),
                 Forms\Components\TextInput::make('signer_name')->columnSpan(6),
                 Forms\Components\TextInput::make('signer_title')->columnSpan(6),
+                Forms\Components\Toggle::make('show_signature')->label('Show signature on PDF')->default(false)->columnSpan(4),
                 Forms\Components\Select::make('status')->options([
                     'draft'=>'Draft','finalized'=>'Finalized'
                 ])->default('draft')->native(false)->columnSpan(4),

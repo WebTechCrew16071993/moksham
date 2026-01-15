@@ -130,13 +130,15 @@
             </td>
             <td>
                 <div class="footer" style="text-align: center;font-size:16px;">
+                    @if($letter->show_signature)
                     <div>Yours faithfully,</div>
-                    <div class="bold" style="font-size:16px;margin-top: 2px;text-transform: uppercase;">{{ $setting->company_signature_text ?? $setting->company_name ?? 'MOKSHAM EXPORT IMPORT LLC.' }}</div>
-                    
-                    <div style="height: 60px;"></div>
-                    
-                    <div>{{ $letter->signer_name ?? 'Mr. NIK PATEL' }}({{ $letter->signer_title ?? ' C.O.O.' }})</div>
-                </div>
+                        <div class="bold" style="font-size:16px;margin-top: 2px;text-transform: uppercase;">{{ $setting->company_signature_text ?? $setting->company_name ?? 'MOKSHAM EXPORT IMPORT LLC.' }}</div>
+                        <div style="height: 60px;"></div>
+                        <div>{{ $letter->signer_name ?? 'Mr. NIK PATEL' }}({{ $letter->signer_title ?? ' C.O.O.' }})</div>
+                    </div>
+                    @else
+                        <div style="height: 60px;"></div>
+                    @endif
             </td>
         </tr>
     </table>

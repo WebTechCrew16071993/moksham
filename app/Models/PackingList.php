@@ -27,6 +27,7 @@ class PackingList extends Model
         'total_bales',
         'total_weight_lbs',
         'total_weight_kg',
+        'total_weight_mt',
         'status',
         'pdf_path',
     ];
@@ -37,6 +38,7 @@ class PackingList extends Model
         'arrival_date' => 'date',
         'total_weight_lbs' => 'decimal:3',
         'total_weight_kg' => 'decimal:3',
+        'total_weight_mt' => 'decimal:3',
     ];
 
     public function shipment()
@@ -95,14 +97,24 @@ class PackingList extends Model
         return (string) number_format((float) $this->items()->sum('weight_kg'), 3, '.', '');
     }
 
+    public function getTotalWeightMtAttribute($value)
+    {
+        if (!is_null($value) && (float) $value > 0) {
+            return $value;
+        }
+        return (string) number_format((float) $this->items()->sum('weight_mt'), 3, '.', '');
+    }
+
     // Helper to recompute and persist totals using current items
     public function recomputeTotals(bool $persist = true): void
     {
         $lbs = (float) $this->items()->sum('weight_lbs');
         $kg  = (float) $this->items()->sum('weight_kg');
+        $mt  = (float) $this->items()->sum('weight_mt');
         $bales = (int) $this->items()->sum('no_of_bales');
         $this->total_weight_lbs = number_format($lbs, 3, '.', '');
         $this->total_weight_kg  = number_format($kg, 3, '.', '');
+        $this->total_weight_mt  = number_format($mt, 3, '.', '');
         $this->total_bales      = $bales;
         if ($persist && $this->exists) {
             $this->saveQuietly();

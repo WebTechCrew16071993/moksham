@@ -49,6 +49,7 @@ class BillOfExchangeResource extends Resource
                 Forms\Components\TextInput::make('place_of_issue')->label('Place')->columnSpan(4),
                 Forms\Components\TextInput::make('amount_usd')->numeric()->columnSpan(4),
                 Forms\Components\TextInput::make('amount_in_words')->columnSpan(12),
+                Forms\Components\Toggle::make('show_signature')->label('Show signature on PDF')->default(false)->columnSpan(4),
                 Forms\Components\Select::make('status')->options([
                     'draft'=>'Draft','finalized'=>'Finalized'
                 ])->default('draft')->native(false)->columnSpan(4),

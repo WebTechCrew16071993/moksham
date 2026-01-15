@@ -225,7 +225,7 @@
     <tbody>
         <tr>
             <td class="center border-right" style=" padding-top: 10px;padding-bottom: 10px;vertical-align: top;">{{ $invoice->no_of_cont }}</td>
-            <td class="center border-right" style="padding-top: 10px;padding-bottom: 10px;vertical-align: top;">{{ number_format((float) $invoice->weight_mt, 3) }}MT</td>
+            <td class="center border-right" style="padding-top: 10px;padding-bottom: 10px;vertical-align: top;">{{ number_format((float) $invoice->weight_mt, 3) }} MT</td>
             <td class="center border-right" style="padding-top: 10px;padding-bottom: 10px;vertical-align: top;">
                 <!-- <div style="margin-bottom: 3px;">WASTEPAPER OCC 11</div>
                 <div style="margin-bottom: 3px;">MOISTURECONTAIN: LESS THAN 12%</div>
@@ -329,12 +329,12 @@
     {!! $tcHasHtml ? $tc : nl2br(e($tc)) !!}
 </div>
 
-<div class="bold uppercase" style="margin-bottom: 2px;">ADDITIONAL APPLICABLE CHARGES:</div>
+{{-- <div class="bold uppercase" style="margin-bottom: 2px;">ADDITIONAL APPLICABLE CHARGES:</div>
 <div style="font-size: 14px; line-height: 1.4;">
     ** Rollover fee: $250 per containers, + terminal rehandling as per the line.<br>
     ** BL correction fee: $75 per BL after 2 amendments.<br>
     ** OBL Courier Fee: Domestic $30.00, International $90.00
-</div>
+</div> --}}
 
 {{-- <div style="margin-top: 60px; text-align: right;">
     <div class="center" style="display: inline-block; width: 220px; margin-right: 30px;">

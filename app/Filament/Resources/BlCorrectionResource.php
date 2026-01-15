@@ -125,24 +125,39 @@ class BlCorrectionResource extends Resource
                     ->reactive()
                     ->afterStateUpdated(function ($state, Set $set) {
                         $kg = (float) $state;
-                        $set('net_weight_mts', $kg > 0 ? round($kg / 1000, 3) : null);
-                        $set('net_weight_lbs', $kg > 0 ? round($kg / 0.453592, 3) : null);
+                        // normalize to 2 decimals
+                        $set('net_weight_kgs', $kg > 0 ? number_format($kg, 2, '.', '') : null);
+                        $set('net_weight_mts', $kg > 0 ? round($kg / 1000, 2) : null);
+                        $set('net_weight_lbs', $kg > 0 ? round($kg / 0.453592, 2) : null);
+                    })
+                    ->afterStateHydrated(function (Set $set, $state) {
+                        if ($state !== null && $state !== '') {
+                            $set('net_weight_kgs', number_format((float)$state, 2, '.', ''));
+                        }
                     })
                     ->columnSpan(4),
                 Forms\Components\TextInput::make('net_weight_mts')
                     ->label('Net weight (mts)')
                     ->numeric()
                     ->required()
-                    ->columnSpan(4),
-                Forms\Components\TextInput::make('net_weight_lbs')
-                    ->label('Net weight (lbs)')
-                    ->disabled()
-                    ->dehydrated(false)
                     ->afterStateHydrated(function (Set $set, $state, Get $get) {
-                        $kg = (float) $get('net_weight_kgs');
-                        $set('net_weight_lbs', $kg > 0 ? round($kg / 0.453592, 3) : null);
+                        if ($state !== null && $state !== '') {
+                            $set('net_weight_mts', number_format((float)$state, 2, '.', ''));
+                        } else {
+                            $kg = (float) $get('net_weight_kgs');
+                            if ($kg > 0) $set('net_weight_mts', number_format($kg/1000, 2, '.', ''));
+                        }
                     })
                     ->columnSpan(4),
+                // Forms\Components\TextInput::make('net_weight_lbs')
+                //     ->label('Net weight (lbs)')
+                //     ->disabled()
+                //     ->dehydrated(false)
+                //     ->afterStateHydrated(function (Set $set, $state, Get $get) {
+                //         $kg = (float) $get('net_weight_kgs');
+                //         $set('net_weight_lbs', $kg > 0 ? round($kg / 0.453592, 3) : null);
+                //     })
+                //     ->columnSpan(4),
                 Forms\Components\TextInput::make('cargo_value')->numeric()->required()->columnSpan(4),
                 Forms\Components\TextInput::make('currency')->default('USD')->maxLength(3)->columnSpan(2),
                 Forms\Components\TextInput::make('packaging_type')->columnSpan(5),
@@ -173,18 +188,36 @@ class BlCorrectionResource extends Resource
                             ->reactive()
                             ->afterStateUpdated(function ($state, Set $set) {
                                 $kg = (float) $state;
-                                $set('weight_lbs', $kg > 0 ? round($kg / 0.453592, 3) : null);
+                                $set('weight_kgs', $kg > 0 ? number_format($kg, 2, '.', '') : null);
+                                $set('weight_mts', $kg > 0 ? round($kg / 1000, 2) : null);
+                                $set('weight_lbs', $kg > 0 ? round($kg / 0.453592, 2) : null);
+                            })
+                            ->afterStateHydrated(function (Set $set, $state) {
+                                if ($state !== null && $state !== '') {
+                                    $set('weight_kgs', number_format((float)$state, 2, '.', ''));
+                                }
                             })
                             ->columnSpan(3),
-                        Forms\Components\TextInput::make('weight_lbs')
-                            ->label('Weight lbs')
-                            ->disabled()
+                        Forms\Components\TextInput::make('weight_mts')
+                            ->label('Weight mts')
+                            ->numeric()
+                            // ->disabled()
                             ->dehydrated(false)
                             ->afterStateHydrated(function (Set $set, $state, Get $get) {
                                 $kg = (float) $get('weight_kgs');
-                                $set('weight_lbs', $kg > 0 ? round($kg / 0.453592, 3) : null);
+                                $set('weight_mts', $kg > 0 ? number_format($kg/1000, 2, '.', '') : null);
                             })
                             ->columnSpan(3),
+                        // Forms\Components\TextInput::make('weight_lbs')
+                        //     ->label('Weight lbs')
+                        //     ->disabled()
+                        //     ->dehydrated(false)
+                        //     ->afterStateHydrated(function (Set $set, $state, Get $get) {
+                        //         $kg = (float) $get('weight_kgs');
+                        //         $set('weight_lbs', $kg > 0 ? round($kg / 0.453592, 3) : null);
+                        //     })
+                        //     ->columnSpan(3),
+                    
                         Forms\Components\Textarea::make('correction_notes')->rows(1)->columnSpan(6),
                     ])
                     ->reorderable(false)

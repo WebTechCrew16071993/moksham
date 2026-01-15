@@ -13,12 +13,13 @@ class BillOfExchange extends Model
     protected $fillable = [
         'invoice_id','shipment_id','packing_list_id','bl_correction_id','user_id',
         'ref_no','issue_date','place_of_issue','amount_usd','amount_in_words',
-        'drawee_name','drawee_address','issuer_name','issuer_title','authorised_signature_image_path','pdf_path','status',
+        'drawee_name','drawee_address','issuer_name','issuer_title','authorised_signature_image_path','pdf_path','status','show_signature',
     ];
 
     protected $casts = [
         'issue_date' => 'date',
         'amount_usd' => 'decimal:2',
+        'show_signature' => 'boolean',
     ];
 
     public function invoice(){ return $this->belongsTo(Invoice::class); }

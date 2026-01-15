@@ -167,12 +167,14 @@
                 {{-- Right Column: SIGNATURE details --}}
                 <td class="signature-cell" style="width: 45%;">
                     <div class="signature-block">
-                        <div class="bold" style="text-transform: uppercase; font-size: 14px;">{{ $setting->company_name ?? 'MOKSHAM EXPORT IMPORT LLC.' }}</div>
-                        
-                        <div class="signature-line"></div>
-                        
-                        <div style="margin-top: 5px;">(Authorised Signature)</div>
-                    </div>
+                            @if($boe->show_signature)
+                            <div class="bold" style="text-transform: uppercase; font-size: 14px;">{{ $setting->company_name ?? 'MOKSHAM EXPORT IMPORT LLC.' }}</div>
+                            @else
+                                <div style="height: 60px;"></div>
+                            @endif
+                            <div class="signature-line"></div>
+                            <div style="margin-top: 5px;">(Authorised Signature)</div>
+                        </div>
                 </td>
             </tr>
         </table>

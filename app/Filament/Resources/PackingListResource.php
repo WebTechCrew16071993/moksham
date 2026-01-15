@@ -176,17 +176,30 @@ class PackingListResource extends Resource
                         ->required()
                         ->columnSpan(6),
                     Forms\Components\TextInput::make('no_of_bales')->numeric()->required()->columnSpan(4),
-                    Forms\Components\TextInput::make('weight_lbs')
-                    ->numeric()->required()
-                    ->label('Weight (lbs)')
-                    ->reactive()
-                    ->afterStateUpdated(function ($state, callable $set) {
-                        $set('weight_kg', round($state * 0.453592, 3));
-                    })->columnSpan(4),
+                    // Forms\Components\TextInput::make('weight_lbs')
+                    //     ->numeric()
+                    //     ->label('Weight (lbs)')
+                    //     ->reactive()
+                    //     ->afterStateUpdated(function ($state, callable $set) {
+                    //         $kg = round($state * 0.453592, 3);
+                    //         $set('weight_kg', $kg);
+                    //         $set('weight_mt', round($kg / 1000, 3));
+                    //     })->columnSpan(4),
                 Forms\Components\TextInput::make('weight_kg')
                     ->numeric()
                     ->label('Weight (kg)')
+                    ->required()
+                    ->reactive()
+                    ->afterStateUpdated(function ($state, callable $set) {
+                        $set('weight_mt', round(((float) $state) / 1000, 3));
+                    })
                     ->dehydrated(true)->columnSpan(4),
+                Forms\Components\TextInput::make('weight_mt')
+                    ->numeric()
+                    ->label('Weight (mt)')
+                    // ->readOnly()
+                    ->dehydrated(true)
+                    ->columnSpan(4),
                 ])
                 ->reorderable(false)
                 ->itemLabel(fn(array $state): ?string => 'Container')

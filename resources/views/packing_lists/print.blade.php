@@ -224,7 +224,7 @@
             <th class="text-center bg-gray" style="width: 12%;padding-left:5px;padding-right:5px;">SEAL NO.</th>
             <th class="text-center bg-gray" style="width: 48%;">DESCRIPTION</th>
             <th class="text-center bg-gray" style="width: 9%;">BALES</th>
-            <th class="text-center bg-gray" style="width: 14%;">WEIGHT</th>
+            <th class="text-center bg-gray" style="width: 14%;">WEIGHT (KG)</th>
         </tr>
     </thead>
     <tbody>
@@ -234,7 +234,7 @@
             <td class="text-center">{{ $item->seal_no }}</td>
             <td class="text-center">{{ $item->description }}</td>
             <td class="text-center">{{ $item->no_of_bales }}</td>
-            <td class="text-center">{{ number_format((float) $item->weight_lbs, 0) }}</td>
+            <td class="text-center">{{ number_format((float) $item->weight_kg, 2, '.', '') }}</td>
         </tr>
     @endforeach
     {{-- Fill empty rows to mimic the image look --}}
@@ -247,29 +247,42 @@
 </table>
 
 {{-- Totals Section --}}
+@php
+    // Recompute totals from items to avoid controller dependency
+    $__sumKg = (float) ($packingList->items->sum('weight_kg'));
+    $__sumMt = round($__sumKg / 1000, 2);
+@endphp
 <table class="grid" style="margin-top: 15px;">
     <thead>
         <tr>
             <th class="text-center bg-gray" style="width: 17%;">TOTAL BALES</th>
             <th class="text-center bg-gray" style="width: 60%;">DESCRIPTION</th>
-            <th class="text-center bg-gray" style="width: 23%;">TOTAL WEIGHT IN LBS</th>
+            <th class="text-center bg-gray" style="width: 23%;">TOTAL WEIGHT IN KGS</th>
         </tr>
     </thead>
     <tbody>
         <tr>
             <td class="text-center">{{ $totalBales }}</td>
             <td class="text-center">{{ $descriptionSummary }}</td>
-            <td class="text-center">{{ number_format($totalWeightLbs, 0) }}</td>
+            <td class="text-center">{{ number_format($__sumKg, 2, '.', '') }}</td>
         </tr>
     </tbody>
 </table>
 
-{{-- IN KG Small Table (Aligned Right) --}}
+{{-- IN KG / MT Small Table (Aligned Right) --}}
+@php
+    $__totalKg = $__sumKg;
+    $__totalMt = $__sumMt;
+@endphp
 <div style="width: 100%; display: flex; justify-content: flex-end; margin-top: 15px;">
     <table class="grid" style="width: 38%; margin-left: auto;">
         <tr>
             <th class="text-center bg-gray" style="width: 40%;">IN KG</th>
-            <td class="text-center text-bold">{{ number_format($totalWeightKg, 2) }}</td>
+            <td class="text-center text-bold">{{ number_format($__totalKg, 2, '.', '') }}</td>
+        </tr>
+        <tr>
+            <th class="text-center bg-gray" style="width: 40%;">IN MT</th>
+            <td class="text-center text-bold">{{ number_format($__totalMt, 2, '.', '') }}</td>
         </tr>
     </table>
 </div>
