@@ -298,16 +298,16 @@
             <td class="col-value"><strong class="text-red">{{ strtoupper($indent->release_type_of_obl) }}</strong></td>
         </tr>
     </table>
-
-    <div style="margin-top: 10px; padding-left: 8px; position: relative;">
-        <div style="margin:0;" class="font-bold">OTHER TERMS :</div>
-        <div class="text-red-in inner-m0 inner-ul1" style="margin: 0px;">{!! $indent->other_terms !!}</div> 
-        
-    </div>
+    
     <div class="page-number" style="text-align: right;">(Page 01)</div>
 
     <div style="page-break-before: always;"></div>
 
+    <div style="margin-top: 5px; padding-left: 0px; position: relative;">
+        <div style="margin:0;" class="font-bold">OTHER TERMS :</div>
+        <div class="text-red-in inner-m0 inner-ul1" style="margin: 0px;">{!! $indent->other_terms !!}</div> 
+    </div>
+    
     <div style="margin-top: 10px; margin-bottom: 20px; width: 100%;">
         <div style="float: left; width: 100%;font-size: 16px !important;line-height: 1.25;">This Agreement shall be governed by and construed in accordance with the laws of United States <br /> of America.</div>
     </div>
