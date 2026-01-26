@@ -124,7 +124,7 @@
     <tr>
         <td style="width: 40%; padding: 0;border-bottom: none; border-right: 1px solid #000; vertical-align: top;">
             <div class="bold border-bottom bg-gray box-header plr-2">SHIPPER</div>
-            <div class="plr-2" style="padding: 5px; height: 75px;">
+            <div class="plr-2" style="padding: 5px; min-height: 81px;">
                 <div class="bold">{{ strtoupper($setting?->company_name) }}</div>
                 <div>{{ $setting?->company_address }},</div>
                 <div>{{ $setting?->company_city }},{{ $setting?->company_state }} {{ $setting?->company_zip }}</div>
@@ -157,7 +157,7 @@
     <tr>
         <td style="width: 40%; padding: 0; vertical-align: top;">
             <div class="bold border-bottom bg-gray box-header plr-2">BILL TO</div>
-            <div class="plr-2" style="padding: 5px 2px; height: 60px;">
+            <div class="plr-2" style="padding: 5px 2px; min-height: 81px;">
                 <div class="bold">{{ $invoice->consignee?->name }}</div>
                 <div style="white-space: pre-line;">{!! $invoice->consignee?->address !!}</div>
                 <div>{{ $invoice->consignee?->city }},{{ $invoice->consignee?->state }}-{{ $invoice->consignee?->zip }}</div>
@@ -192,16 +192,16 @@
                     <td class="center border-bottom no-border-right h-2" style="padding-left:2px;padding-right:2px;">{{ optional($invoice->arrival)->format('m/d/Y') }}</td>
                 </tr>
                 <tr>
-                    <td class="bold border-right border-bottom no-border-left bg-gray h-2" style="padding-left:2px;padding-right:2px;">SI CUT OFF:</td>
-                    <td class="center border-right border-bottom h-2" style="padding-left:2px;padding-right:2px;">{{ $invoice->si_cut_off ? \Carbon\Carbon::parse($invoice->si_cut_off)->format('m/d/Y') : '' }}</td>
-                    <td class="bold border-right border-bottom bg-gray h-2" style="padding-left:2px;padding-right:2px;">DESTINATION:</td>
-                    <td class="center border-bottom uppercase  no-border-right h-2" style="padding-left:2px;padding-right:2px;">{{ $invoice->f_dest ?? $invoice->packingList?->destination }}</td>
+                    <td class="bold border-right border-bottom no-border-left bg-gray" style="padding-left:2px;padding-right:2px;height: 36px;">SI CUT OFF:</td>
+                    <td class="center border-right border-bottom" style="padding-left:2px;padding-right:2px;height: 36px;">{{ $invoice->si_cut_off ? \Carbon\Carbon::parse($invoice->si_cut_off)->format('m/d/Y') : '' }}</td>
+                    <td class="bold border-right border-bottom bg-gray" style="padding-left:2px;padding-right:2px;height: 36px;">DESTINATION:</td>
+                    <td class="center border-bottom uppercase no-border-right" style="padding-left:2px;padding-right:2px;height: 36px;">{{ $invoice->f_dest ?? $invoice->packingList?->destination }}</td>
                 </tr>
                 <tr>
-                    <td class="bold border-right border-bottom no-border-left bg-gray h-2" style="padding-left:2px;padding-right:2px;">ORIGIN:</td>
-                    <td class="center border-right border-bottom uppercase h-2" style="padding-left:2px;padding-right:2px;">{{ $invoice->origin ?? 'CHICAGO' }}</td>
-                    <td class="bold border-right border-bottom bg-gray h-2" style="padding-left:2px;padding-right:2px;">F. DEST:</td>
-                    <td class="center border-bottom uppercase  no-border-right h-2" style="padding-left:2px;padding-right:2px;">{{ $invoice->f_dest ?? $invoice->packingList?->destination }}</td>
+                    <td class="bold border-right border-bottom no-border-left bg-gray h-2" style="padding-left:2px;padding-right:2px;height: 36px !important;">ORIGIN:</td>
+                    <td class="center border-right border-bottom uppercase h-2" style="padding-left:2px;padding-right:2px;height: 36px !important;">{{ $invoice->origin ?? 'CHICAGO' }}</td>
+                    <td class="bold border-right border-bottom bg-gray h-2" style="padding-left:2px;padding-right:2px;height: 36px !important;">F. DEST:</td>
+                    <td class="center border-bottom uppercase  no-border-right h-2" style="padding-left:2px;padding-right:2px;height: 36px !important;">{{ $invoice->f_dest ?? $invoice->packingList?->destination }}</td>
                 </tr>
                  <tr>
                     <td class="bold border-right bg-gray no-border-bottom no-border-left" style="height: 25px;padding-left:2px;padding-right:2px;" >QUOTATION:</td>
